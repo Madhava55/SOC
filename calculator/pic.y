@@ -9,10 +9,8 @@
 	#include <vector>
 	void bfs(TreeNode* root) {
     if (root == NULL) return;
-
     queue<TreeNode*> q;
     q.push(root);
-
     while (!q.empty()) {
         int levelSize = q.size(); 
         vector<TreeNode*> levelNodes;   
@@ -74,7 +72,7 @@ expression
 	| '-' expression %prec Uminus						{ auto a = new Expression(0.0); auto ret = new TreeNode("-"); ret->left = new TreeNode(*a); ret->right = $2; $$ = ret;}
 	| INT_CONST											{ auto a = new Expression(atoi($1->c_str())); $$ = new TreeNode(*a);}
 	| FLT_CONST											{ auto a = new Expression(atof($1->c_str()));$$ = new TreeNode(*a); }
-	| NAME												{ auto a = new Expression($1); $$ = new TreeNode(*a); }
+	| NAME												{ $$ = table[*($1)]; }
 ;
 
 %%
