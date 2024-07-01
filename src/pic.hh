@@ -1,10 +1,11 @@
 #ifndef PIC_HH
 #define PIC_HH
 #include <map>
-#include <vector>
 #include <cstdio>
 #include <iostream>
 #include <string>
+#include <queue>
+#include <vector>
 using namespace std;
 
 class TreeNode;
@@ -13,7 +14,6 @@ union value {
 	double a;
 	string *b;
 };
-
 
 struct Expression {
 	int etype;
@@ -31,8 +31,7 @@ struct Expression {
 	}
 
 	double get_value() {
-		switch (etype)
-		{
+		switch (etype) {
 			case 0:
 				return v.a;
 			case 1:
@@ -45,7 +44,6 @@ struct Expression {
 		exit(1);
 	}
 };
-class TreeNode;
 
 union object {
     Expression exp;
@@ -67,9 +65,7 @@ public:
     TreeNode* right;
     TreeNode() : type(0), obj(), left(nullptr), right(nullptr) {}
 
-    ~TreeNode() {
-        delete obj.b; 
-    }
+    ~TreeNode() { delete obj.b; }
 
     TreeNode(Expression& e) : type(0), obj(e), left(nullptr), right(nullptr) {} 
     TreeNode(string *s) : type(1), obj(s), left(nullptr), right(nullptr) {} 
@@ -78,21 +74,20 @@ public:
 
     void print() {
         if (type == 0) {
-            cout<<obj.exp.get_value();
-        } 
-		else if(type == 1){
+            cout << obj.exp.get_value();
+        } else if (type == 1) {
             cout<< *obj.b;
-        }
-		else{
+        } else {
 			cout << "Array is ";
-			for(int i=0;i<obj.vec->size();i++)
-			{
-				cout<<(*(obj.vec))[i]->obj.exp.get_value()<<" , ";
-			}
+			for (int i=0; i < obj.vec->size(); i++)
+				cout << (*(obj.vec))[i]->obj.exp.get_value() << " , ";
 			cout <<endl;
 		}
     }
 };
-extern map<string,TreeNode*> table;
+
+// OTHER DECLARATIONS
+
+void bfs(TreeNode* root);
 
 #endif // PIC_HH
