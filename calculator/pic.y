@@ -35,6 +35,7 @@
 %union{
 	string *name;	
 	TreeNode* exp;
+    vector<TreeNode*>* vector_TreeNodes;
 }
 
 %token INT_CONST FLT_CONST NAME LET 				// Token declarations (lexer uses these declarations to return tokens)
@@ -45,6 +46,7 @@
 
 %type <name> INT_CONST FLT_CONST NAME LET '(' ')'	// Declare token types to be of type *string
 %type <exp> expression 	stmt								// Declare the expression non-terminal to be of type *TreeNode
+%type <vector_TreeNodes> expressions
 
 %start program 														// Starting rule for the grammar
 %%
@@ -63,8 +65,14 @@ stmt
 	: LET NAME '=' expression ';'								{ TreeNode* head = $4; table[*($2)]=head; $$=head;}		// Assignment statement
 ; 
 
+expressions
+    : expressions ',' expression                        { $1->push_back($3); $$ = $1; }
+    | expression                                        { vector<TreeNode*>* vec = new vector<TreeNode*>(); vec->push_back($1); $$ = vec;}
+;
+
 expression
-	: '(' expression ')'								{ $$ = $2; }
+	: '(' expression ')'				                { $$ = $2; }
+    | '[' expressions ']'                               { auto ret = new TreeNode(($2)); $$ = ret; }
 	| expression '/' expression							{ auto ret = new TreeNode("/"); ret->left = $1; ret->right = $3; $$ = ret;}
 	| expression '*' expression							{ auto ret = new TreeNode("*"); ret->left = $1; ret->right = $3; $$ = ret;}
 	| expression '+' expression							{ auto ret = new TreeNode("+"); ret->left = $1; ret->right = $3; $$ = ret;}

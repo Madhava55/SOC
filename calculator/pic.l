@@ -25,6 +25,9 @@ letter                      [a-zA-Z_]
 let 										{ yylval.name = new string(yytext); return LET; }
 "("											{ return '(' ;}
 ")"											{ return ')' ;}
+"["											{ return '[' ;}
+"]"											{ return ']' ;}
+","											{ return ',' ;}
 {digit}+									{ yylval.name = new string(yytext); return INT_CONST; }
 {fraction}									{ yylval.name = new string(yytext); return FLT_CONST; }
 {operator}									{ return yytext[0]; }

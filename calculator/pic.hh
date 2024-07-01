@@ -1,10 +1,13 @@
 #ifndef PIC_HH
 #define PIC_HH
 #include <map>
+#include <vector>
 #include <cstdio>
 #include <iostream>
 #include <string>
 using namespace std;
+
+class TreeNode;
 
 union value {
 	double a;
@@ -42,15 +45,17 @@ struct Expression {
 		exit(1);
 	}
 };
+class TreeNode;
 
 union object {
     Expression exp;
     string *b;
-
+	vector<TreeNode*>* vec;
     object() {} 
     ~object() {} 
     object(Expression& e) : exp(e) {}
     object(string *s) : b(s) {}
+	object(vector<TreeNode*>* v) : vec(v) {}
 	object(const char* s) : b(new string(s)) {}
 };
 
@@ -69,13 +74,23 @@ public:
     TreeNode(Expression& e) : type(0), obj(e), left(nullptr), right(nullptr) {} 
     TreeNode(string *s) : type(1), obj(s), left(nullptr), right(nullptr) {} 
 	TreeNode(const char* s): type(1), obj(s), left(nullptr), right(nullptr) {} 
+	TreeNode(vector<TreeNode*>* v): type(2), obj(v), left(nullptr), right(nullptr) {} 
 
     void print() {
         if (type == 0) {
             cout<<obj.exp.get_value();
-        } else {
+        } 
+		else if(type == 1){
             cout<< *obj.b;
         }
+		else{
+			cout << "Array is ";
+			for(int i=0;i<obj.vec->size();i++)
+			{
+				cout<<(*(obj.vec))[i]->obj.exp.get_value()<<" , ";
+			}
+			cout <<endl;
+		}
     }
 };
 extern map<string,TreeNode*> table;
