@@ -148,7 +148,7 @@ public:
             obj.exp.get_value();
         } else if (type == 1) {
             cout<< *obj.b;
-        } else {
+        } else if(type==2){
 			cout << "[ ";
 			for (int i=0; i < obj.vec->size(); i++)
 				{(*(obj.vec))[i]->obj.exp.get_value(); if(i<obj.vec->size()-1)cout<<",";}
@@ -211,7 +211,7 @@ public:
 		{
 			obj.vec->push_back((*stmt->obj.vec)[i]);
 		}
-		obj.vec=stmt->obj.vec; stmtType = EXPR_COLL;
+		stmtType = EXPR_COLL;
 	}
 };
 

@@ -14,12 +14,13 @@
 	vector<TreeNode*>* vector_TreeNodes;
 }
 
-%token INT_CONST FLT_CONST NAME LET FOR WHILE IF ELSE FUNC NOT NOT_EQUAL				// Token declarations (lexer uses these declarations to return tokens)
+%token INT_CONST FLT_CONST NAME LET FOR WHILE IF ELSE FUNC NOT 				// Token declarations (lexer uses these declarations to return tokens)
 
 %left '+' '-' 											// Left associative operators '+' and '-'
 %left '*' '/' 											// Left associative operators '*' and '/'
-%left '<' '>' 
-%right Uminus 											// Right associative unary minus operator
+%right Uminus NOT										// Right associative unary minus operator
+%nonassoc '<' '>' "==" NOT_EQUAL
+
 
 %type <name> INT_CONST FLT_CONST NAME LET '(' ')' '{' '}' '[' ']' 		// Declare token types to be of type *string
 %type <exp> expression 								// Declare the expression non-terminal to be of type *TreeNode
@@ -35,6 +36,7 @@
 program
 	: stmts	{ 
 			programm *top = new programm($1); 
+			for(int i=0;i<(*top->obj.node->obj.vec).size();i++)bfs((*top->obj.node->obj.vec)[i]);
 			}
 ;
 
