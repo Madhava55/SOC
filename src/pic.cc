@@ -1,6 +1,6 @@
 #include "pic.hh"
 
-map<string, TreeNode*> table;
+map<string, express*> table;
 
 void bfs(TreeNode* root) {
 	if (root == NULL) return;
@@ -19,8 +19,20 @@ void bfs(TreeNode* root) {
 		}
 		for (int i = 0; i < levelNodes.size(); i++) {
 			if (i != 0) cout << " ";
-			levelNodes[i]->print();
+			if(levelNodes[i]->stmtType==STMT_EXPRESSION)levelNodes[i]->print();
 		}
 		cout << endl;  
 	}
 }
+
+express::express(block* blk){
+	type = 4;
+	obj.node=blk;
+	stmtType = STMT_EXPRESSION;
+} 
+
+express::express(expr_coll* expr){
+	type = 5;
+	obj.node=expr;
+	stmtType = STMT_EXPRESSION;
+} 

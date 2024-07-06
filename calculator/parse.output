@@ -1,0 +1,433 @@
+Grammar
+
+    0 $accept: program $end
+
+    1 program: stmts
+
+    2 stmts: stmts stmt
+    3      | stmt
+
+    4 stmt: LET NAME '=' expression ';'
+
+    5 expressions: expressions ',' expression
+    6            | expression
+
+    7 expression: '(' expression ')'
+    8           | '[' expressions ']'
+    9           | expression '/' expression
+   10           | expression '*' expression
+   11           | expression '+' expression
+   12           | expression '-' expression
+   13           | '-' expression
+   14           | INT_CONST
+   15           | FLT_CONST
+   16           | NAME
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '(' <name> (40) 7
+    ')' <name> (41) 7
+    '*' (42) 10
+    '+' (43) 11
+    ',' (44) 5
+    '-' (45) 12 13
+    '/' (47) 9
+    ';' (59) 4
+    '=' (61) 4
+    '[' (91) 8
+    ']' (93) 8
+    error (256)
+    INT_CONST <name> (258) 14
+    FLT_CONST <name> (259) 15
+    NAME <name> (260) 4 16
+    LET <name> (261) 4
+    Uminus (262)
+
+
+Nonterminals, with rules where they appear
+
+    $accept (19)
+        on left: 0
+    program (20)
+        on left: 1
+        on right: 0
+    stmts (21)
+        on left: 2 3
+        on right: 1 2
+    stmt <exp> (22)
+        on left: 4
+        on right: 2 3
+    expressions <vector_TreeNodes> (23)
+        on left: 5 6
+        on right: 5 8
+    expression <exp> (24)
+        on left: 7 8 9 10 11 12 13 14 15 16
+        on right: 4 5 6 7 9 10 11 12 13
+
+
+State 0
+
+    0 $accept: • program $end
+
+    LET  shift, and go to state 1
+
+    program  go to state 2
+    stmts    go to state 3
+    stmt     go to state 4
+
+
+State 1
+
+    4 stmt: LET • NAME '=' expression ';'
+
+    NAME  shift, and go to state 5
+
+
+State 2
+
+    0 $accept: program • $end
+
+    $end  shift, and go to state 6
+
+
+State 3
+
+    1 program: stmts •
+    2 stmts: stmts • stmt
+
+    LET  shift, and go to state 1
+
+    $default  reduce using rule 1 (program)
+
+    stmt  go to state 7
+
+
+State 4
+
+    3 stmts: stmt •
+
+    $default  reduce using rule 3 (stmts)
+
+
+State 5
+
+    4 stmt: LET NAME • '=' expression ';'
+
+    '='  shift, and go to state 8
+
+
+State 6
+
+    0 $accept: program $end •
+
+    $default  accept
+
+
+State 7
+
+    2 stmts: stmts stmt •
+
+    $default  reduce using rule 2 (stmts)
+
+
+State 8
+
+    4 stmt: LET NAME '=' • expression ';'
+
+    INT_CONST  shift, and go to state 9
+    FLT_CONST  shift, and go to state 10
+    NAME       shift, and go to state 11
+    '-'        shift, and go to state 12
+    '('        shift, and go to state 13
+    '['        shift, and go to state 14
+
+    expression  go to state 15
+
+
+State 9
+
+   14 expression: INT_CONST •
+
+    $default  reduce using rule 14 (expression)
+
+
+State 10
+
+   15 expression: FLT_CONST •
+
+    $default  reduce using rule 15 (expression)
+
+
+State 11
+
+   16 expression: NAME •
+
+    $default  reduce using rule 16 (expression)
+
+
+State 12
+
+   13 expression: '-' • expression
+
+    INT_CONST  shift, and go to state 9
+    FLT_CONST  shift, and go to state 10
+    NAME       shift, and go to state 11
+    '-'        shift, and go to state 12
+    '('        shift, and go to state 13
+    '['        shift, and go to state 14
+
+    expression  go to state 16
+
+
+State 13
+
+    7 expression: '(' • expression ')'
+
+    INT_CONST  shift, and go to state 9
+    FLT_CONST  shift, and go to state 10
+    NAME       shift, and go to state 11
+    '-'        shift, and go to state 12
+    '('        shift, and go to state 13
+    '['        shift, and go to state 14
+
+    expression  go to state 17
+
+
+State 14
+
+    8 expression: '[' • expressions ']'
+
+    INT_CONST  shift, and go to state 9
+    FLT_CONST  shift, and go to state 10
+    NAME       shift, and go to state 11
+    '-'        shift, and go to state 12
+    '('        shift, and go to state 13
+    '['        shift, and go to state 14
+
+    expressions  go to state 18
+    expression   go to state 19
+
+
+State 15
+
+    4 stmt: LET NAME '=' expression • ';'
+    9 expression: expression • '/' expression
+   10           | expression • '*' expression
+   11           | expression • '+' expression
+   12           | expression • '-' expression
+
+    '+'  shift, and go to state 20
+    '-'  shift, and go to state 21
+    '*'  shift, and go to state 22
+    '/'  shift, and go to state 23
+    ';'  shift, and go to state 24
+
+
+State 16
+
+    9 expression: expression • '/' expression
+   10           | expression • '*' expression
+   11           | expression • '+' expression
+   12           | expression • '-' expression
+   13           | '-' expression •
+
+    $default  reduce using rule 13 (expression)
+
+
+State 17
+
+    7 expression: '(' expression • ')'
+    9           | expression • '/' expression
+   10           | expression • '*' expression
+   11           | expression • '+' expression
+   12           | expression • '-' expression
+
+    '+'  shift, and go to state 20
+    '-'  shift, and go to state 21
+    '*'  shift, and go to state 22
+    '/'  shift, and go to state 23
+    ')'  shift, and go to state 25
+
+
+State 18
+
+    5 expressions: expressions • ',' expression
+    8 expression: '[' expressions • ']'
+
+    ','  shift, and go to state 26
+    ']'  shift, and go to state 27
+
+
+State 19
+
+    6 expressions: expression •
+    9 expression: expression • '/' expression
+   10           | expression • '*' expression
+   11           | expression • '+' expression
+   12           | expression • '-' expression
+
+    '+'  shift, and go to state 20
+    '-'  shift, and go to state 21
+    '*'  shift, and go to state 22
+    '/'  shift, and go to state 23
+
+    $default  reduce using rule 6 (expressions)
+
+
+State 20
+
+   11 expression: expression '+' • expression
+
+    INT_CONST  shift, and go to state 9
+    FLT_CONST  shift, and go to state 10
+    NAME       shift, and go to state 11
+    '-'        shift, and go to state 12
+    '('        shift, and go to state 13
+    '['        shift, and go to state 14
+
+    expression  go to state 28
+
+
+State 21
+
+   12 expression: expression '-' • expression
+
+    INT_CONST  shift, and go to state 9
+    FLT_CONST  shift, and go to state 10
+    NAME       shift, and go to state 11
+    '-'        shift, and go to state 12
+    '('        shift, and go to state 13
+    '['        shift, and go to state 14
+
+    expression  go to state 29
+
+
+State 22
+
+   10 expression: expression '*' • expression
+
+    INT_CONST  shift, and go to state 9
+    FLT_CONST  shift, and go to state 10
+    NAME       shift, and go to state 11
+    '-'        shift, and go to state 12
+    '('        shift, and go to state 13
+    '['        shift, and go to state 14
+
+    expression  go to state 30
+
+
+State 23
+
+    9 expression: expression '/' • expression
+
+    INT_CONST  shift, and go to state 9
+    FLT_CONST  shift, and go to state 10
+    NAME       shift, and go to state 11
+    '-'        shift, and go to state 12
+    '('        shift, and go to state 13
+    '['        shift, and go to state 14
+
+    expression  go to state 31
+
+
+State 24
+
+    4 stmt: LET NAME '=' expression ';' •
+
+    $default  reduce using rule 4 (stmt)
+
+
+State 25
+
+    7 expression: '(' expression ')' •
+
+    $default  reduce using rule 7 (expression)
+
+
+State 26
+
+    5 expressions: expressions ',' • expression
+
+    INT_CONST  shift, and go to state 9
+    FLT_CONST  shift, and go to state 10
+    NAME       shift, and go to state 11
+    '-'        shift, and go to state 12
+    '('        shift, and go to state 13
+    '['        shift, and go to state 14
+
+    expression  go to state 32
+
+
+State 27
+
+    8 expression: '[' expressions ']' •
+
+    $default  reduce using rule 8 (expression)
+
+
+State 28
+
+    9 expression: expression • '/' expression
+   10           | expression • '*' expression
+   11           | expression • '+' expression
+   11           | expression '+' expression •
+   12           | expression • '-' expression
+
+    '*'  shift, and go to state 22
+    '/'  shift, and go to state 23
+
+    $default  reduce using rule 11 (expression)
+
+
+State 29
+
+    9 expression: expression • '/' expression
+   10           | expression • '*' expression
+   11           | expression • '+' expression
+   12           | expression • '-' expression
+   12           | expression '-' expression •
+
+    '*'  shift, and go to state 22
+    '/'  shift, and go to state 23
+
+    $default  reduce using rule 12 (expression)
+
+
+State 30
+
+    9 expression: expression • '/' expression
+   10           | expression • '*' expression
+   10           | expression '*' expression •
+   11           | expression • '+' expression
+   12           | expression • '-' expression
+
+    $default  reduce using rule 10 (expression)
+
+
+State 31
+
+    9 expression: expression • '/' expression
+    9           | expression '/' expression •
+   10           | expression • '*' expression
+   11           | expression • '+' expression
+   12           | expression • '-' expression
+
+    $default  reduce using rule 9 (expression)
+
+
+State 32
+
+    5 expressions: expressions ',' expression •
+    9 expression: expression • '/' expression
+   10           | expression • '*' expression
+   11           | expression • '+' expression
+   12           | expression • '-' expression
+
+    '+'  shift, and go to state 20
+    '-'  shift, and go to state 21
+    '*'  shift, and go to state 22
+    '/'  shift, and go to state 23
+
+    $default  reduce using rule 5 (expressions)

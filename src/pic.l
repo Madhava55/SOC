@@ -18,11 +18,23 @@ letter                      				[a-zA-Z_]
 
 %%
 let 										{ yylval.name = new string(yytext); return LET; }
+for 										{ yylval.name = new string(yytext); return FOR; }
+if 											{ yylval.name = new string(yytext); return IF; }
+else 										{ yylval.name = new string(yytext); return ELSE; }
+func 										{ yylval.name = new string(yytext); return FUNC; }
+while 										{ yylval.name = new string(yytext); return WHILE; }
 "("											{ return '(' ;}
 ")"											{ return ')' ;}
+"{"											{ return '{' ;}
+"}"											{ return '}' ;}
 "["											{ return '[' ;}
 "]"											{ return ']' ;}
 ","											{ return ',' ;}
+"<"											{ return '<' ;}
+">"											{ return '>' ;}
+"=="										{ yylval.name = new string(yytext); return NOT_EQUAL;}
+"!="										{ yylval.name = new string(yytext); return NOT;}
+"!"											{ return '!' ;}
 {digit}+									{ yylval.name = new string(yytext); return INT_CONST; }
 {fraction}									{ yylval.name = new string(yytext); return FLT_CONST; }
 {operator}									{ return yytext[0]; }
