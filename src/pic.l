@@ -28,7 +28,7 @@ while 										{ yylval.name = new string(yytext); return WHILE; }
 "{"											{ return '{' ;}
 "}"											{ return '}' ;}
 "["											{ return '[' ;}
-"]"											{ return ']' ;}
+"]"				 							{ return ']' ;}
 ","											{ return ',' ;}
 "<"											{ return '<' ;}
 ">"											{ return '>' ;}

@@ -28,7 +28,10 @@ struct Expression {
 		etype = 0;
 		v.a = x;
 	}
-
+	Expression(int x = 0) {
+		etype = 0;
+		v.a = x;
+	}
 	Expression(string *x) {
 		etype = 1;
 		v.b = x;
@@ -47,23 +50,23 @@ struct Expression {
 	void get_value() {
 		switch (etype) {
 			case 0:
-				cout<<v.a<<" ";
+				cout<<v.a;
 				break;
 			case 1:
-				cout<<v.b<<" ";
+				cout<<v.b;
 				break;
 			case 2:
-				cout<<v.c<<" ";
+				cout<<v.c;
 				break;
 			case 3:
-				cout<<v.boolean<<" ";
+				cout<<v.boolean;
 				break;
 			default:
-				break;
+            cout << "Unknown type: " << etype << endl;
+			cout<<"this etype is the problem "<<etype<<endl;
+			printf("Error: get_value\n");
+			exit(1);
 		}
-
-		printf("Error: get_value\n");
-		exit(1);
 	}
 };
 
@@ -72,13 +75,14 @@ union object {
     string *b;
 	TreeNode* node;
 	vector<TreeNode*>* vec;
+	const char *ch; 
     object() {} 
     ~object() {} 
     object(Expression& e) : exp(e) {}
     object(string *s) : b(s) {}
+	object(const char *s) : ch(s) {}
 	object(vector<TreeNode*>* v) : vec(v) {}
 	object(TreeNode* n) : node(n) {}
-	object(const char* s) : b(new string(s)) {}
 };
 
 enum StatementType {
@@ -95,6 +99,7 @@ enum StatementType {
 
 class TreeNode {
 public:
+	int type=99;
     object obj; 
 	TreeNode* left;
     TreeNode* right;
@@ -114,8 +119,7 @@ public:
 
 class express : public TreeNode{
 public:
-	int type;
-    express() {type = 0;stmtType = STMT_EXPRESSION;} 
+    express() {type = 6; stmtType = STMT_EXPRESSION;} 
     ~express() { delete obj.b; stmtType = STMT_EXPRESSION;}
     express(Expression e){
 		type = 0;
@@ -126,6 +130,12 @@ public:
 	{
 		type=1;
 		obj.b=s;
+		stmtType = STMT_EXPRESSION;
+	}  
+	express(const char *s)
+	{
+		type=8;
+		obj.ch=s;
 		stmtType = STMT_EXPRESSION;
 	} 
 	express(vector<TreeNode*>* v){
@@ -153,6 +163,10 @@ public:
 			for (int i=0; i < obj.vec->size(); i++)
 				{(*(obj.vec))[i]->obj.exp.get_value(); if(i<obj.vec->size()-1)cout<<",";}
 			cout <<"]"<<endl;
+		}
+		else if(type == 8)
+		{
+			cout<<*obj.ch;
 		}
     }
 };

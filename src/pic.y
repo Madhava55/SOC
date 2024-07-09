@@ -51,11 +51,11 @@ stmts
 			}
 
 stmt
-	: LET NAME '=' expression ';'						{ express* head = ($4) ; auto ret = new express(($2)); assign* node = new assign(ret,head); $$ = node;}
-	| NAME 												{ if(table.find(*($1))!=table.end())table[*($1)]->print(); else {cout<<"invalid entry"<<endl;}  }
+	: LET NAME '=' expression ';'						{ auto ret = new express(($2)); assign* node = new assign(ret,$4); $$ = node;}
 	| FOR '(' expression ')' expression					{ For* loop = new For($3,$5); $$ = loop; }
 	| WHILE '(' expression ')' expression				{ While* loop = new While($3,$5); $$ = loop; }
 	| IF '(' expression ')' expression ELSE expression	{ if_else* loop = new if_else($3,$5,$7); $$ = loop; }
+	| NAME 												{}
 ; 
 
 expressions
@@ -64,22 +64,22 @@ expressions
 ;
 
 expression
-	: '(' expression ')'				                { $$ = $2; }
-	| '{' stmts '}'    				           			{ auto ret = new express(($2)); $$ = ret; }
+	: '(' expression ')'				                {  $$ = $2;  }
+	| '{' stmts '}'    				           			{ auto ret = new express(($2)); $$ = ret;  }
     | '[' expressions ']'                               { auto ret = new express(($2)); $$ = ret; }
-	| expression '/' expression							{ auto ret = new express("/"); ret->left = $1; ret->right = $3; $$ = ret; }
-	| expression '*' expression							{ auto ret = new express("*"); ret->left = $1; ret->right = $3; $$ = ret; }
-	| expression '+' expression							{ auto ret = new express("+"); ret->left = $1; ret->right = $3; $$ = ret; }
-	| expression '-' expression					 		{ auto ret = new express("-"); ret->left = $1; ret->right = $3; $$ = ret; }
-	| expression '<' expression							{ auto ret = new express("<"); ret->left = $1; ret->right = $3; $$ = ret; }
-	| expression '>' expression							{ auto ret = new express(">"); ret->left = $1; ret->right = $3; $$ = ret; }
+	| expression '/' expression							{ auto ret = new express("/"); ret->left = $1; ret->right = $3;  }
+	| expression '*' expression							{ auto ret = new express("*"); ret->left = $1; ret->right = $3; $$ = ret;  }
+	| expression '+' expression							{ auto ret = new express("+"); ret->left = $1; ret->right = $3; $$ = ret;  }
+	| expression '-' expression					 		{ auto ret = new express("-"); ret->left = $1; ret->right = $3; $$ = ret;  }
+	| expression '<' expression							{ auto ret = new express("<"); ret->left = $1; ret->right = $3; $$ = ret;  }
+	| expression '>' expression							{ auto ret = new express(">"); ret->left = $1; ret->right = $3; $$ = ret;  }
 	| expression "==" expression						{ auto ret = new express("=="); ret->left = $1; ret->right = $3; $$ = ret; }
 	| expression NOT_EQUAL expression					{ auto ret = new express("!="); ret->left = $1; ret->right = $3; $$ = ret; }
-	| NOT expression 									{ auto a = new Expression(0.0); auto ret = new express("!"); ret->left = new express(*a); ret->right = $2; $$ = ret; }
+	| NOT expression 									{ auto a = new Expression(0.0); auto ret = new express("!"); ret->left = new express(*a); ret->right = $2; $$ = ret;}
 	| '-' expression %prec Uminus						{ auto a = new Expression(0.0); auto ret = new express("-"); ret->left = new express(*a); ret->right = $2; $$ = ret; }
-	| INT_CONST											{ auto a = new Expression(static_cast<double>(atoi($1->c_str()))); $$ = new express(*a); }
+	| INT_CONST											{ auto a = new Expression(atoi($1->c_str())); $$ = new express(*a); }
 	| FLT_CONST											{ auto a = new Expression(atof($1->c_str())); $$ = new express(*a); }
-	| NAME												{ $$ = table[*($1)]; }
+	| NAME												{ auto ret = new express(($1)); $$ = ret; }
 ;
 
 %%
