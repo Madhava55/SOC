@@ -94,11 +94,12 @@ enum StatementType {
     STMT_IF_ELSE,  //  takes condition and execute as input (2 tree nodes)..note that presently else has to be included always
 	STMT_ASSIGN,	// let statmement
 	EXPR_COLL,		// collection of expression separated by comma
-    STMT_EXPRESSION   // simple expression including integers, stings, sum , ...basically string of operations
+    STMT_EXPRESSION,  // simple expression including integers, stings, sum , ...basically string of operations
 };
 
 class TreeNode {
 public:
+	double comp=0;
 	int type=99;
     object obj; 
 	TreeNode* left;
@@ -115,6 +116,7 @@ public:
 	assign(){stmtType = STMT_ASSIGN;}
 	~assign(){stmtType = STMT_ASSIGN;}
 	assign(TreeNode* name, TreeNode* expression){left=name; right=expression; stmtType = STMT_ASSIGN;}
+	void print() override {cout<<right->comp<<endl;}
 };
 
 class express : public TreeNode{
@@ -168,6 +170,10 @@ public:
 		{
 			cout<<*obj.ch;
 		}
+		else 
+		{
+			obj.node->print();
+		}
     }
 };
 
@@ -177,6 +183,7 @@ public:
 	~For(){stmtType = STMT_FOR;}
 	For(TreeNode* condition, TreeNode* execute){left=condition; right=execute; stmtType = STMT_FOR;}
 };
+
 
 class While : public TreeNode{
 public:
@@ -190,7 +197,18 @@ public:
 	
 	if_else(){stmtType = STMT_IF_ELSE;}
 	~if_else(){stmtType = STMT_IF_ELSE;}
-	if_else(express* condition, TreeNode* this_exp, TreeNode* that_exp){obj.exp=condition; left=this_exp; right=that_exp; stmtType = STMT_IF_ELSE;}
+	if_else(express* condition, TreeNode* this_exp, TreeNode* that_exp){obj.node=condition; left=this_exp; right=that_exp; stmtType = STMT_IF_ELSE;}
+	void print() override{
+		cout<<"condition is ";
+		obj.node->print();
+		cout<<endl;
+		cout<<"if: ";
+		left->print();
+		cout<<endl;
+		cout<<"else: ";
+		right->print();
+		cout<<endl;
+	}
 };
 
 class functions : public TreeNode{
@@ -205,13 +223,15 @@ class expr_coll : public TreeNode{
 public:
 	expr_coll(){stmtType = EXPR_COLL;}
 	~expr_coll(){stmtType = EXPR_COLL;}
-	expr_coll(vector<TreeNode*>* stmts){obj.vec=stmts; stmtType = EXPR_COLL;}
-	void push (TreeNode* expr){
-		for(int i=0;i<expr->obj.vec->size();i++)
-		{
-			obj.vec->push_back((*expr->obj.vec)[i]);
-		}
-		obj.vec=expr->obj.vec; stmtType = EXPR_COLL;
+	expr_coll(vector<TreeNode*>* expr){obj.vec=expr; stmtType = EXPR_COLL;}
+	void push (TreeNode* expr)
+		{obj.vec->push_back(expr);
+		stmtType = EXPR_COLL;}
+	void print() override{
+		cout << "[";
+			for (int i=0; i < obj.vec->size(); i++)
+				{(*(obj.vec))[i]->obj.exp.get_value(); if(i<obj.vec->size()-1)cout<<",";}
+			cout <<"]"<<endl;
 	}
 };
 
@@ -220,13 +240,7 @@ public:
 	block(){stmtType = STMT_BLOCK;}
 	~block(){stmtType = STMT_BLOCK;}
 	block(vector<TreeNode*>* stmts){obj.vec=stmts; stmtType = STMT_BLOCK;}
-	void push (TreeNode* stmt){
-		for(int i=0;i<stmt->obj.vec->size();i++)
-		{
-			obj.vec->push_back((*stmt->obj.vec)[i]);
-		}
-		stmtType = EXPR_COLL;
-	}
+	void push (TreeNode* stmt) {obj.vec->push_back(stmt);}
 };
 
 

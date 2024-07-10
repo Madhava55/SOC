@@ -17,13 +17,13 @@ void bfs(TreeNode* root) {
             if (current->left != NULL) q.push(current->left);
             if (current->right != NULL) q.push(current->right);
         }
-        for (int i = 0; i < levelNodes.size(); i++) {
+        /*for (int i = 0; i < levelNodes.size(); i++) {
             if (i != 0) cout << " ";
             if(levelNodes[i]->stmtType==STMT_EXPRESSION) {
                 levelNodes[i]->print();
             }
         }
-        cout << endl;  
+        cout << endl;  */
     }
 }
 
