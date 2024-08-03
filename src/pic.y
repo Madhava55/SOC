@@ -2,7 +2,7 @@
     #include "pic.cc"
     extern "C" void yyerror(const char *s);
     extern int yylex(void);
-	extern map<string, express*> table;
+	extern vector<unordered_map<string, express*>> table;
 %}
 
 %union{
@@ -10,21 +10,23 @@
 	express* exp;
 	TreeNode* tree;
 	expr_coll* wrap_exp;
+	Scope* scop;
 	block* stmt_wrap;
 	vector<TreeNode*>* vector_TreeNodes;
 }
 
-%token INT_CONST FLT_CONST NAME LET FOR WHILE IF ELSE FUNC NOT 				// Token declarations (lexer uses these declarations to return tokens)
+%token INT_CONST FLT_CONST NAME LET FOR WHILE IF ELSE FUNC NOT EQUAL			// Token declarations (lexer uses these declarations to return tokens)
 
 %left '+' '-' 											// Left associative operators '+' and '-'
 %left '*' '/' 											// Left associative operators '*' and '/'
 %right Uminus NOT										// Right associative unary minus operator
-%nonassoc '<' '>' "==" NOT_EQUAL
+%nonassoc '<' '>' EQUAL NOT_EQUAL
 
 
 %type <name> INT_CONST FLT_CONST NAME LET '(' ')' '{' '}' '[' ']' 		// Declare token types to be of type *string
 %type <exp> expression 								// Declare the expression non-terminal to be of type *TreeNode
 %type <tree> stmt 
+%type <scop> block
 %type <stmt_wrap> stmts
 %type <wrap_exp> expressions
 
@@ -35,8 +37,9 @@
 
 program
 	: stmts	{ 
+			evaluate($1);
 			programm *top = new programm($1); 
-			for(int i=0;i<(*top->obj.node->obj.vec).size();i++){bfs((*top->obj.node->obj.vec)[i]);cout<<endl;}
+			// line commented for(int i=0;i<(*top->obj.node->obj.vec).size();i++){bfs((*top->obj.node->obj.vec)[i]);cout<<endl;}
 			}
 ;
 
@@ -50,14 +53,20 @@ stmts
 			vec->push_back($1);
 			$$ = new block(vec); 	
 			}
-
+ 
 stmt
-	: LET NAME '=' expression ';'						{ auto ret = new express(($2)); assign* node = new assign(ret,$4);table[*($2)]=$4; $$ = node;}
-	| NAME ';'     	 									{ cout<<table[*($1)]->comp<<endl; }
-	| FOR '(' expression ')' expression					{ For* loop = new For($3,$5); $$ = loop; }
-	| WHILE '(' expression ')' expression				{ While* loop = new While($3,$5); $$ = loop; }
-	| IF '(' expression ')' expression ELSE expression	{ if_else* loop = new if_else($3,$5,$7); $$ = loop; }
+	: block												{ $$ = $1; }
+	| LET NAME '=' expression ';'						{ $$ = new assign($2,$4,0); }
+	| NAME '=' expression ';'							{ $$ = new assign($1,$3,1); }
+	| NAME ';'     	 									{ $$ = new print_variable($1); }
+	| FOR '(' stmt  expression ';' stmt ')' block		{ $$ = new For($3,$4,$6,$8); }
+	| WHILE '(' expression ')' block					{ $$ = new While($3,$5); }
+	| IF '(' expression ')' block ELSE block	   		{ $$ = new if_else($3,$5,$7); }
 ; 
+	
+block
+	:'{' stmts '}' 										{ $$ = new Scope($2); }
+;
 
 expressions
     : expressions ',' expression                        { $1->push($3); $$ = $1; }
@@ -66,21 +75,20 @@ expressions
 
 expression
 	: '(' expression ')'				                { $$ = $2; }
-	| '{' stmts '}'    				           			{ auto ret = new express(($2)); $$ = ret; }
-    | '[' expressions ']'                               { auto ret = new express(($2)); $$ = ret; }
-	| expression '/' expression							{ auto ret = new express("/"); ret->left = $1; ret->right = $3; ret->comp = ($1->comp)/($3->comp); $$ = ret;  }
-	| expression '*' expression							{ auto ret = new express("*"); ret->left = $1; ret->right = $3; ret->comp = ($1->comp)*($3->comp); $$ = ret;  }
-	| expression '+' expression							{ auto ret = new express("+"); ret->left = $1; ret->right = $3; ret->comp = ($1->comp)+($3->comp); $$ = ret;  }
-	| expression '-' expression					 		{ auto ret = new express("-"); ret->left = $1; ret->right = $3; ret->comp = ($1->comp)-($3->comp); $$ = ret;  }
+    | '[' expressions ']'                               { $$ = new express(($2)); }
+	| expression '/' expression							{ auto ret = new express("/"); ret->left = $1; ret->right = $3; $$ = ret;  }
+	| expression '*' expression							{ auto ret = new express("*"); ret->left = $1; ret->right = $3; $$ = ret;  }
+	| expression '+' expression							{ auto ret = new express("+"); ret->left = $1; ret->right = $3; $$ = ret;  }
+	| expression '-' expression					 		{ auto ret = new express("-"); ret->left = $1; ret->right = $3; $$ = ret;  }
 	| expression '<' expression							{ auto ret = new express("<"); ret->left = $1; ret->right = $3; $$ = ret;  }
 	| expression '>' expression							{ auto ret = new express(">"); ret->left = $1; ret->right = $3; $$ = ret;  }
-	| expression "==" expression						{ auto ret = new express("=="); ret->left = $1; ret->right = $3; $$ = ret; }
+	| expression EQUAL expression						{ auto ret = new express("=="); ret->left = $1; ret->right = $3; $$ = ret; }
 	| expression NOT_EQUAL expression					{ auto ret = new express("!="); ret->left = $1; ret->right = $3; $$ = ret; }
-	| NOT expression 									{ auto a = new Expression(0.0); auto ret = new express("!"); ret->left = new express(*a); ret->right = $2; $$ = ret; }
-	| '-' expression %prec Uminus						{ auto a = new Expression(0.0); auto ret = new express("-"); ret->left = new express(*a); ret->right = $2;  ret->comp = -1*($2->comp); $$ = ret; }
-	| INT_CONST											{ auto a = new Expression(atoi($1->c_str())); auto temp = new express(*a); temp->comp = atof($1->c_str()); $$ = temp;}
-	| FLT_CONST											{ auto a = new Expression(atof($1->c_str())); auto temp = new express(*a); temp->comp = atof($1->c_str()); $$ = temp;}
-	| NAME												{ auto ret = new express(($1)); $$ = ret; }
+	| NOT expression 									{  }
+	| '-' expression %prec Uminus						{ $$ = new express(*new Expression(-1 *($2->obj.exp.v.a))); }
+	| INT_CONST											{ $$ = new express(*new Expression(atoi($1->c_str()))); }
+	| FLT_CONST											{ $$ = new express(*new Expression(atoi($1->c_str()))); }
+	| NAME												{ $$ = variable($1); }
 ;
 
 %%
@@ -88,6 +96,7 @@ expression
 /* ADDITIONAL C CODE */
 
 int main() {
+	table.push_back(unordered_map<string, express*>()); 
 	yyparse();
     return 0;
 }

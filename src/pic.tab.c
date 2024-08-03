@@ -72,7 +72,7 @@
     #include "pic.cc"
     extern "C" void yyerror(const char *s);
     extern int yylex(void);
-	extern map<string, express*> table;
+	extern vector<unordered_map<string, express*>> table;
 
 #line 78 "pic.tab.c"
 
@@ -199,8 +199,10 @@ enum yysymbol_kind_t
   YYSYMBOL_program = 32,                   /* program  */
   YYSYMBOL_stmts = 33,                     /* stmts  */
   YYSYMBOL_stmt = 34,                      /* stmt  */
-  YYSYMBOL_expressions = 35,               /* expressions  */
-  YYSYMBOL_expression = 36                 /* expression  */
+  YYSYMBOL_block = 35,                     /* block  */
+  YYSYMBOL_36_1 = 36,                      /* $@1  */
+  YYSYMBOL_expressions = 37,               /* expressions  */
+  YYSYMBOL_expression = 38                 /* expression  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -526,18 +528,18 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  27
+#define YYFINAL  28
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   176
+#define YYLAST   205
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  31
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  6
+#define YYNNTS  8
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  27
+#define YYNRULES  29
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  64
+#define YYNSTATES  67
 
 /* YYMAXUTOK -- Last valid token kind.  */
 #define YYMAXUTOK   270
@@ -588,9 +590,9 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    37,    37,    44,    47,    54,    55,    56,    57,    58,
-      62,    63,    67,    68,    69,    70,    71,    72,    73,    74,
-      75,    76,    77,    78,    79,    80,    81,    82
+       0,    37,    37,    44,    48,    55,    56,    57,    58,    59,
+      60,    64,    64,    69,    70,    74,    75,    76,    77,    78,
+      79,    80,    81,    82,    83,    84,    85,    86,    87,    88
 };
 #endif
 
@@ -610,8 +612,8 @@ static const char *const yytname[] =
   "FLT_CONST", "NAME", "LET", "FOR", "WHILE", "IF", "ELSE", "FUNC", "NOT",
   "'+'", "'-'", "'*'", "'/'", "Uminus", "'<'", "'>'", "\"==\"",
   "NOT_EQUAL", "'('", "')'", "'{'", "'}'", "'['", "']'", "'='", "';'",
-  "','", "$accept", "program", "stmts", "stmt", "expressions",
-  "expression", YY_NULLPTR
+  "','", "$accept", "program", "stmts", "stmt", "block", "$@1",
+  "expressions", "expression", YY_NULLPTR
 };
 
 static const char *
@@ -621,7 +623,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-14)
+#define YYPACT_NINF (-25)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -635,13 +637,13 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-      76,   -14,   -14,   -14,     4,    -6,    11,    13,    27,    27,
-      27,    76,    27,    38,    76,   -14,   155,    12,    27,    27,
-      27,   -13,   -13,   111,    52,     7,   155,   -14,   -14,    27,
-      27,    27,    27,    27,    27,    27,    27,    27,   122,   133,
-     144,   -14,   -14,   -14,    27,    -1,    -1,   -13,   -13,    24,
-      24,    24,    24,    90,    27,    27,    27,   155,   -14,   155,
-     155,   102,    27,   155
+     102,   -25,   -25,   -25,     5,    -8,    -7,    -6,    14,    14,
+      14,   -25,    14,    20,   102,   -25,   -25,   116,     1,    14,
+      14,    14,    56,    56,   140,   102,   -18,   184,   -25,   -25,
+      14,    14,    14,    14,    14,    14,    14,    14,   -25,    14,
+     151,   162,   173,   -25,    -1,   -25,    14,    41,    41,    56,
+      56,    75,    75,    75,    75,   128,   102,   102,   102,   -25,
+     184,   -25,   102,   102,    78,   102,   102
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -649,25 +651,25 @@ static const yytype_int16 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,    25,    26,    27,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     2,     4,     9,     0,     0,     0,
-       0,    23,    24,     0,     0,     0,    11,     1,     3,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,    12,    13,    14,     0,    17,    18,    16,    15,    19,
-      20,    21,    22,     0,     0,     0,     0,    10,     5,     6,
-       7,     0,     0,     8
+       0,    27,    28,    29,     0,     0,     0,     0,     0,     0,
+       0,    11,     0,     0,     2,     4,     5,     0,     0,     0,
+       0,     0,    25,    26,     0,     0,     0,    14,     1,     3,
+       0,     0,     0,     0,     0,     0,     0,     0,     7,     0,
+       0,     0,     0,    15,     0,    16,     0,    19,    20,    18,
+      17,    21,    22,    23,    24,     0,     0,     0,     0,    12,
+      13,     6,     8,     9,     0,     0,    10
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -14,   -14,    39,   -11,   -14,    -8
+     -25,   -25,   -24,   -14,   -25,   -25,   -25,    34
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,    13,    14,    15,    25,    16
+       0,    13,    14,    15,    16,    25,    26,    17
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -675,46 +677,52 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      21,    22,    23,    28,    26,    33,    34,    35,    36,    17,
-      38,    39,    40,    28,    31,    32,    18,    33,    34,    35,
-      36,    45,    46,    47,    48,    49,    50,    51,    52,    53,
-       1,     2,     3,    19,    43,    20,    57,    44,    27,     8,
-      37,     9,    -1,    -1,    -1,    -1,    59,    60,    61,    10,
-      24,    11,     0,    12,    63,     1,     2,     3,     4,     5,
+      29,    44,     1,     2,     3,     4,     5,     6,     7,    45,
+      18,     8,    46,     9,    19,    20,    21,     1,     2,     3,
+      28,    10,     0,    11,    59,    12,     8,     0,     9,    39,
+      29,     0,    62,    63,    64,     0,    10,     0,     0,     0,
+      12,    66,    22,    23,    24,     0,    27,     0,    29,    29,
+      29,     0,    29,    40,    41,    42,    32,    33,     0,    34,
+      35,    36,    37,     0,    47,    48,    49,    50,    51,    52,
+      53,    54,     0,    55,    34,    35,    36,    37,     0,     0,
+      60,     1,     2,     3,     4,     5,     6,     7,    65,     0,
+       8,     0,     9,    -1,    -1,    -1,    -1,     0,     0,     0,
+      10,     0,    11,     0,    12,     1,     2,     3,     4,     5,
        6,     7,     0,     0,     8,     0,     9,     0,     0,     0,
-       0,     0,     0,     0,    10,     0,    11,    42,    12,     1,
-       2,     3,     4,     5,     6,     7,     0,     0,     8,     0,
-       9,     0,     0,     0,     0,     0,     0,     0,    10,     0,
-      11,     0,    12,    29,    30,    31,    32,     0,    33,    34,
-      35,    36,    62,     0,     0,    29,    30,    31,    32,    58,
-      33,    34,    35,    36,    29,    30,    31,    32,     0,    33,
-      34,    35,    36,     0,    41,    29,    30,    31,    32,     0,
-      33,    34,    35,    36,     0,    54,    29,    30,    31,    32,
-       0,    33,    34,    35,    36,     0,    55,    29,    30,    31,
-      32,     0,    33,    34,    35,    36,     0,    56,    29,    30,
-      31,    32,     0,    33,    34,    35,    36
+       0,     0,     0,     0,    10,     0,    11,     0,    12,    30,
+      31,    32,    33,     0,    34,    35,    36,    37,     0,     0,
+       0,    30,    31,    32,    33,    38,    34,    35,    36,    37,
+       0,     0,     0,    30,    31,    32,    33,    61,    34,    35,
+      36,    37,     0,    43,    30,    31,    32,    33,     0,    34,
+      35,    36,    37,     0,    56,    30,    31,    32,    33,     0,
+      34,    35,    36,    37,     0,    57,    30,    31,    32,    33,
+       0,    34,    35,    36,    37,     0,    58,    30,    31,    32,
+      33,     0,    34,    35,    36,    37
 };
 
 static const yytype_int8 yycheck[] =
 {
-       8,     9,    10,    14,    12,    18,    19,    20,    21,     5,
-      18,    19,    20,    24,    15,    16,    22,    18,    19,    20,
-      21,    29,    30,    31,    32,    33,    34,    35,    36,    37,
-       3,     4,     5,    22,    27,    22,    44,    30,     0,    12,
-      28,    14,    18,    19,    20,    21,    54,    55,    56,    22,
-      11,    24,    -1,    26,    62,     3,     4,     5,     6,     7,
+      14,    25,     3,     4,     5,     6,     7,     8,     9,    27,
+       5,    12,    30,    14,    22,    22,    22,     3,     4,     5,
+       0,    22,    -1,    24,    25,    26,    12,    -1,    14,    28,
+      44,    -1,    56,    57,    58,    -1,    22,    -1,    -1,    -1,
+      26,    65,     8,     9,    10,    -1,    12,    -1,    62,    63,
+      64,    -1,    66,    19,    20,    21,    15,    16,    -1,    18,
+      19,    20,    21,    -1,    30,    31,    32,    33,    34,    35,
+      36,    37,    -1,    39,    18,    19,    20,    21,    -1,    -1,
+      46,     3,     4,     5,     6,     7,     8,     9,    10,    -1,
+      12,    -1,    14,    18,    19,    20,    21,    -1,    -1,    -1,
+      22,    -1,    24,    -1,    26,     3,     4,     5,     6,     7,
        8,     9,    -1,    -1,    12,    -1,    14,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    22,    -1,    24,    25,    26,     3,
-       4,     5,     6,     7,     8,     9,    -1,    -1,    12,    -1,
-      14,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    22,    -1,
-      24,    -1,    26,    13,    14,    15,    16,    -1,    18,    19,
-      20,    21,    10,    -1,    -1,    13,    14,    15,    16,    29,
-      18,    19,    20,    21,    13,    14,    15,    16,    -1,    18,
+      -1,    -1,    -1,    -1,    22,    -1,    24,    -1,    26,    13,
+      14,    15,    16,    -1,    18,    19,    20,    21,    -1,    -1,
+      -1,    13,    14,    15,    16,    29,    18,    19,    20,    21,
+      -1,    -1,    -1,    13,    14,    15,    16,    29,    18,    19,
+      20,    21,    -1,    23,    13,    14,    15,    16,    -1,    18,
       19,    20,    21,    -1,    23,    13,    14,    15,    16,    -1,
       18,    19,    20,    21,    -1,    23,    13,    14,    15,    16,
       -1,    18,    19,    20,    21,    -1,    23,    13,    14,    15,
-      16,    -1,    18,    19,    20,    21,    -1,    23,    13,    14,
-      15,    16,    -1,    18,    19,    20,    21
+      16,    -1,    18,    19,    20,    21
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
@@ -722,28 +730,28 @@ static const yytype_int8 yycheck[] =
 static const yytype_int8 yystos[] =
 {
        0,     3,     4,     5,     6,     7,     8,     9,    12,    14,
-      22,    24,    26,    32,    33,    34,    36,     5,    22,    22,
-      22,    36,    36,    36,    33,    35,    36,     0,    34,    13,
-      14,    15,    16,    18,    19,    20,    21,    28,    36,    36,
-      36,    23,    25,    27,    30,    36,    36,    36,    36,    36,
-      36,    36,    36,    36,    23,    23,    23,    36,    29,    36,
-      36,    36,    10,    36
+      22,    24,    26,    32,    33,    34,    35,    38,     5,    22,
+      22,    22,    38,    38,    38,    36,    37,    38,     0,    34,
+      13,    14,    15,    16,    18,    19,    20,    21,    29,    28,
+      38,    38,    38,    23,    33,    27,    30,    38,    38,    38,
+      38,    38,    38,    38,    38,    38,    23,    23,    23,    25,
+      38,    29,    33,    33,    33,    10,    33
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
        0,    31,    32,    33,    33,    34,    34,    34,    34,    34,
-      35,    35,    36,    36,    36,    36,    36,    36,    36,    36,
-      36,    36,    36,    36,    36,    36,    36,    36
+      34,    36,    35,    37,    37,    38,    38,    38,    38,    38,
+      38,    38,    38,    38,    38,    38,    38,    38,    38,    38
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     1,     2,     1,     5,     5,     5,     7,     1,
-       3,     1,     3,     3,     3,     3,     3,     3,     3,     3,
-       3,     3,     3,     2,     2,     1,     1,     1
+       0,     2,     1,     2,     1,     1,     5,     2,     5,     5,
+       7,     0,     4,     3,     1,     3,     3,     3,     3,     3,
+       3,     3,     3,     3,     3,     2,     2,     1,     1,     1
 };
 
 
@@ -1212,167 +1220,182 @@ yyreduce:
 			programm *top = new programm((yyvsp[0].stmt_wrap)); 
 			for(int i=0;i<(*top->obj.node->obj.vec).size();i++){bfs((*top->obj.node->obj.vec)[i]);cout<<endl;}
 			}
-#line 1216 "pic.tab.c"
+#line 1224 "pic.tab.c"
     break;
 
   case 3: /* stmts: stmts stmt  */
 #line 44 "pic.y"
                      { 
-			(yyvsp[-1].stmt_wrap)->push((yyvsp[0].tree)); (yyval.stmt_wrap) = (yyvsp[-1].stmt_wrap);
+			(yyvsp[-1].stmt_wrap)->push((yyvsp[0].tree)); 
+			(yyval.stmt_wrap) = (yyvsp[-1].stmt_wrap);
 			}
-#line 1224 "pic.tab.c"
+#line 1233 "pic.tab.c"
     break;
 
   case 4: /* stmts: stmt  */
-#line 47 "pic.y"
+#line 48 "pic.y"
                 { 
 			vector<TreeNode*>* vec = new vector<TreeNode*>();
-			vec->push_back((yyvsp[0].tree)); 
+			vec->push_back((yyvsp[0].tree));
 			(yyval.stmt_wrap) = new block(vec); 	
 			}
-#line 1234 "pic.tab.c"
+#line 1243 "pic.tab.c"
     break;
 
-  case 5: /* stmt: LET NAME '=' expression ';'  */
-#line 54 "pic.y"
-                                                                                { auto ret = new express(((yyvsp[-3].name))); assign* node = new assign(ret,(yyvsp[-1].exp)); (yyval.tree) = node;}
-#line 1240 "pic.tab.c"
-    break;
-
-  case 6: /* stmt: FOR '(' expression ')' expression  */
+  case 5: /* stmt: block  */
 #line 55 "pic.y"
-                                                                                { For* loop = new For((yyvsp[-2].exp),(yyvsp[0].exp)); (yyval.tree) = loop; }
-#line 1246 "pic.tab.c"
+                                                                                                        { }
+#line 1249 "pic.tab.c"
     break;
 
-  case 7: /* stmt: WHILE '(' expression ')' expression  */
+  case 6: /* stmt: LET NAME '=' expression ';'  */
 #line 56 "pic.y"
-                                                                        { While* loop = new While((yyvsp[-2].exp),(yyvsp[0].exp)); (yyval.tree) = loop; }
-#line 1252 "pic.tab.c"
+                                                                                { auto ret = new express(((yyvsp[-3].name))); assign* node = new assign(ret,(yyvsp[-1].exp));table.back()[*((yyvsp[-3].name))]=(yyvsp[-1].exp); (yyval.tree) = node;}
+#line 1255 "pic.tab.c"
     break;
 
-  case 8: /* stmt: IF '(' expression ')' expression ELSE expression  */
+  case 7: /* stmt: expression ';'  */
 #line 57 "pic.y"
-                                                                { if_else* loop = new if_else((yyvsp[-4].exp),(yyvsp[-2].exp),(yyvsp[0].exp)); (yyval.tree) = loop; }
-#line 1258 "pic.tab.c"
+                                                                                        { cout<<(yyvsp[-1].exp)->compute<<endl; }
+#line 1261 "pic.tab.c"
     break;
 
-  case 9: /* stmt: expression  */
+  case 8: /* stmt: FOR '(' expression ')' stmts  */
 #line 58 "pic.y"
-                                                                                                        {  }
-#line 1264 "pic.tab.c"
+                                                                                { For* loop = new For((yyvsp[-2].exp),(yyvsp[0].stmt_wrap)); (yyval.tree) = loop; }
+#line 1267 "pic.tab.c"
     break;
 
-  case 10: /* expressions: expressions ',' expression  */
-#line 62 "pic.y"
-                                                        { (yyvsp[-2].wrap_exp)->push((yyvsp[0].exp)); (yyval.wrap_exp) = (yyvsp[-2].wrap_exp); }
-#line 1270 "pic.tab.c"
+  case 9: /* stmt: WHILE '(' expression ')' stmts  */
+#line 59 "pic.y"
+                                                                                { While* loop = new While((yyvsp[-2].exp),(yyvsp[0].stmt_wrap)); (yyval.tree) = loop; }
+#line 1273 "pic.tab.c"
     break;
 
-  case 11: /* expressions: expression  */
-#line 63 "pic.y"
-                                                        { vector<TreeNode*>* vec = new vector<TreeNode*>(); vec->push_back((yyvsp[0].exp)); (yyval.wrap_exp) = new expr_coll(vec); }
-#line 1276 "pic.tab.c"
+  case 10: /* stmt: IF '(' expression ')' stmts ELSE stmts  */
+#line 60 "pic.y"
+                                                                        { if_else* loop = new if_else((yyvsp[-4].exp),(yyvsp[-2].stmt_wrap),(yyvsp[0].stmt_wrap)); (yyval.tree) = loop; }
+#line 1279 "pic.tab.c"
     break;
 
-  case 12: /* expression: '(' expression ')'  */
-#line 67 "pic.y"
-                                                                        {  (yyval.exp) = (yyvsp[-1].exp);  }
-#line 1282 "pic.tab.c"
+  case 11: /* $@1: %empty  */
+#line 64 "pic.y"
+              { table.push_back(unordered_map<string, express*>()); }
+#line 1285 "pic.tab.c"
     break;
 
-  case 13: /* expression: '{' stmts '}'  */
-#line 68 "pic.y"
-                                                                                        { auto ret = new express(((yyvsp[-1].stmt_wrap))); (yyval.exp) = ret; }
-#line 1288 "pic.tab.c"
+  case 12: /* block: '{' $@1 stmts '}'  */
+#line 64 "pic.y"
+                                                                                {
+				table.pop_back();
+			}
+#line 1293 "pic.tab.c"
     break;
 
-  case 14: /* expression: '[' expressions ']'  */
+  case 13: /* expressions: expressions ',' expression  */
 #line 69 "pic.y"
-                                                        { auto ret = new express(((yyvsp[-1].wrap_exp))); (yyval.exp) = ret; }
-#line 1294 "pic.tab.c"
+                                                        { (yyvsp[-2].wrap_exp)->push((yyvsp[0].exp)); (yyval.wrap_exp) = (yyvsp[-2].wrap_exp); }
+#line 1299 "pic.tab.c"
     break;
 
-  case 15: /* expression: expression '/' expression  */
+  case 14: /* expressions: expression  */
 #line 70 "pic.y"
-                                                                                        { auto ret = new express("/"); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); ret->comp = ((yyvsp[-2].exp)->comp)/((yyvsp[0].exp)->comp); (yyval.exp) = ret;  }
-#line 1300 "pic.tab.c"
+                                                        { vector<TreeNode*>* vec = new vector<TreeNode*>(); vec->push_back((yyvsp[0].exp)); (yyval.wrap_exp) = new expr_coll(vec); }
+#line 1305 "pic.tab.c"
     break;
 
-  case 16: /* expression: expression '*' expression  */
-#line 71 "pic.y"
-                                                                                        { auto ret = new express("*"); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); ret->comp = ((yyvsp[-2].exp)->comp)*((yyvsp[0].exp)->comp); (yyval.exp) = ret;  }
-#line 1306 "pic.tab.c"
-    break;
-
-  case 17: /* expression: expression '+' expression  */
-#line 72 "pic.y"
-                                                                                        { auto ret = new express("+"); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); ret->comp = ((yyvsp[-2].exp)->comp)+((yyvsp[0].exp)->comp); (yyval.exp) = ret;  }
-#line 1312 "pic.tab.c"
-    break;
-
-  case 18: /* expression: expression '-' expression  */
-#line 73 "pic.y"
-                                                                                        { auto ret = new express("-"); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); ret->comp = ((yyvsp[-2].exp)->comp)-((yyvsp[0].exp)->comp); (yyval.exp) = ret;  }
-#line 1318 "pic.tab.c"
-    break;
-
-  case 19: /* expression: expression '<' expression  */
+  case 15: /* expression: '(' expression ')'  */
 #line 74 "pic.y"
-                                                                                        { auto ret = new express("<"); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); (yyval.exp) = ret;  }
-#line 1324 "pic.tab.c"
+                                                                        { (yyval.exp) = (yyvsp[-1].exp); }
+#line 1311 "pic.tab.c"
     break;
 
-  case 20: /* expression: expression '>' expression  */
+  case 16: /* expression: '[' expressions ']'  */
 #line 75 "pic.y"
-                                                                                        { auto ret = new express(">"); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); (yyval.exp) = ret;  }
-#line 1330 "pic.tab.c"
+                                                        { auto ret = new express(((yyvsp[-1].wrap_exp))); (yyval.exp) = ret; }
+#line 1317 "pic.tab.c"
     break;
 
-  case 21: /* expression: expression "==" expression  */
+  case 17: /* expression: expression '/' expression  */
 #line 76 "pic.y"
-                                                                                { auto ret = new express("=="); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); (yyval.exp) = ret; }
-#line 1336 "pic.tab.c"
+                                                                                        { auto ret = new express("/"); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); ret->compute = ((yyvsp[-2].exp)->compute)/((yyvsp[0].exp)->compute); (yyval.exp) = ret;  }
+#line 1323 "pic.tab.c"
     break;
 
-  case 22: /* expression: expression NOT_EQUAL expression  */
+  case 18: /* expression: expression '*' expression  */
 #line 77 "pic.y"
-                                                                                { auto ret = new express("!="); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); (yyval.exp) = ret; }
-#line 1342 "pic.tab.c"
+                                                                                        { auto ret = new express("*"); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); ret->compute = ((yyvsp[-2].exp)->compute)*((yyvsp[0].exp)->compute); (yyval.exp) = ret;  }
+#line 1329 "pic.tab.c"
     break;
 
-  case 23: /* expression: NOT expression  */
+  case 19: /* expression: expression '+' expression  */
 #line 78 "pic.y"
-                                                                                                { auto a = new Expression(0.0); auto ret = new express("!"); ret->left = new express(*a); ret->right = (yyvsp[0].exp); (yyval.exp) = ret; }
-#line 1348 "pic.tab.c"
+                                                                                        { auto ret = new express("+"); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); ret->compute = ((yyvsp[-2].exp)->compute)+((yyvsp[0].exp)->compute); (yyval.exp) = ret;  }
+#line 1335 "pic.tab.c"
     break;
 
-  case 24: /* expression: '-' expression  */
+  case 20: /* expression: expression '-' expression  */
 #line 79 "pic.y"
-                                                                                { auto a = new Expression(0.0); auto ret = new express("-"); ret->left = new express(*a); ret->right = (yyvsp[0].exp);  ret->comp = -1*((yyvsp[0].exp)->comp); (yyval.exp) = ret; }
-#line 1354 "pic.tab.c"
+                                                                                        { auto ret = new express("-"); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); ret->compute = ((yyvsp[-2].exp)->compute)-((yyvsp[0].exp)->compute); (yyval.exp) = ret;  }
+#line 1341 "pic.tab.c"
     break;
 
-  case 25: /* expression: INT_CONST  */
+  case 21: /* expression: expression '<' expression  */
 #line 80 "pic.y"
-                                                                                                        { auto a = new Expression(atoi((yyvsp[0].name)->c_str())); auto temp = new express(*a); temp->comp = atof((yyvsp[0].name)->c_str()); (yyval.exp) = temp;}
-#line 1360 "pic.tab.c"
+                                                                                        { auto ret = new express("<"); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); (yyval.exp) = ret;  }
+#line 1347 "pic.tab.c"
     break;
 
-  case 26: /* expression: FLT_CONST  */
+  case 22: /* expression: expression '>' expression  */
 #line 81 "pic.y"
-                                                                                                        { auto a = new Expression(atof((yyvsp[0].name)->c_str())); auto temp = new express(*a); temp->comp = atof((yyvsp[0].name)->c_str()); (yyval.exp) = temp;}
-#line 1366 "pic.tab.c"
+                                                                                        { auto ret = new express(">"); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); (yyval.exp) = ret;  }
+#line 1353 "pic.tab.c"
     break;
 
-  case 27: /* expression: NAME  */
+  case 23: /* expression: expression "==" expression  */
 #line 82 "pic.y"
+                                                                                { auto ret = new express("=="); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); (yyval.exp) = ret; }
+#line 1359 "pic.tab.c"
+    break;
+
+  case 24: /* expression: expression NOT_EQUAL expression  */
+#line 83 "pic.y"
+                                                                                { auto ret = new express("!="); ret->left = (yyvsp[-2].exp); ret->right = (yyvsp[0].exp); (yyval.exp) = ret; }
+#line 1365 "pic.tab.c"
+    break;
+
+  case 25: /* expression: NOT expression  */
+#line 84 "pic.y"
+                                                                                                { auto a = new Expression(0.0); auto ret = new express("!"); ret->left = new express(*a); ret->right = (yyvsp[0].exp); (yyval.exp) = ret; }
+#line 1371 "pic.tab.c"
+    break;
+
+  case 26: /* expression: '-' expression  */
+#line 85 "pic.y"
+                                                                                { auto a = new Expression(0.0); auto ret = new express("-"); ret->left = new express(*a); ret->right = (yyvsp[0].exp);  ret->compute = -1*((yyvsp[0].exp)->compute); (yyval.exp) = ret; }
+#line 1377 "pic.tab.c"
+    break;
+
+  case 27: /* expression: INT_CONST  */
+#line 86 "pic.y"
+                                                                                                        { auto a = new Expression(atoi((yyvsp[0].name)->c_str())); auto temp = new express(*a); temp->compute = atof((yyvsp[0].name)->c_str()); (yyval.exp) = temp;}
+#line 1383 "pic.tab.c"
+    break;
+
+  case 28: /* expression: FLT_CONST  */
+#line 87 "pic.y"
+                                                                                                        { auto a = new Expression(atof((yyvsp[0].name)->c_str())); auto temp = new express(*a); temp->compute = atof((yyvsp[0].name)->c_str()); (yyval.exp) = temp;}
+#line 1389 "pic.tab.c"
+    break;
+
+  case 29: /* expression: NAME  */
+#line 88 "pic.y"
                                                                                                         { auto ret = new express(((yyvsp[0].name))); (yyval.exp) = ret; }
-#line 1372 "pic.tab.c"
+#line 1395 "pic.tab.c"
     break;
 
 
-#line 1376 "pic.tab.c"
+#line 1399 "pic.tab.c"
 
       default: break;
     }
@@ -1565,7 +1588,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 85 "pic.y"
+#line 91 "pic.y"
 
 
 /* ADDITIONAL C CODE */

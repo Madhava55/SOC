@@ -1,2 +1,5 @@
-let w = 3 * 4 / 2 ;
-w ;
+let counter = 0;
+let a = 2 + 10 / 5 ;
+a;
+a = ( 2 + 10 )/ 5;
+a;

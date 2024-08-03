@@ -8,6 +8,7 @@
 
 /* DEFINITIONS */
 
+comment										("//".*)
 digit                       				[0-9]
 fraction                    				([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)
 ws											[ \r\n]*
@@ -17,6 +18,8 @@ letter                      				[a-zA-Z_]
 /* RULES */
 
 %%
+
+{comment}									;
 let 										{ yylval.name = new string(yytext); return LET; }
 for 										{ yylval.name = new string(yytext); return FOR; }
 if 											{ yylval.name = new string(yytext); return IF; }
@@ -28,12 +31,12 @@ while 										{ yylval.name = new string(yytext); return WHILE; }
 "{"											{ return '{' ;}
 "}"											{ return '}' ;}
 "["											{ return '[' ;}
-"]"				 							{ return ']' ;}
+"]"				 							{ return ']' ;}  
 ","											{ return ',' ;}
 "<"											{ return '<' ;}
 ">"											{ return '>' ;}
-"=="										{ yylval.name = new string(yytext); return NOT_EQUAL;}
-"!="										{ yylval.name = new string(yytext); return NOT;}
+"=="										{ yylval.name = new string(yytext); return EQUAL;}
+"!="										{ yylval.name = new string(yytext); return NOT_EQUAL;}
 "!"											{ return '!' ;}
 {digit}+									{ yylval.name = new string(yytext); return INT_CONST; }
 {fraction}									{ yylval.name = new string(yytext); return FLT_CONST; }

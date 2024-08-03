@@ -1,20 +1,24 @@
 #ifndef PIC_HH
 #define PIC_HH
-#include <map>
+#include <unordered_map>
 #include <cstdio>
 #include <iostream>
 #include <string>
 #include <queue>
 #include <vector>
+#include <stack>
 using namespace std;
 
+class express;
 class TreeNode;
+
+extern vector<unordered_map<string, express*>> table;
+
 class block;      
 class expr_coll; 
 
 union value {
 	double a;
-	string *b;
 	char c;
 	bool boolean;
 };
@@ -32,11 +36,10 @@ struct Expression {
 		etype = 0;
 		v.a = x;
 	}
-	Expression(string *x) {
-		etype = 1;
-		v.b = x;
+	Expression(value val) {  // used only for bool
+		etype = 3;
+		v = val;
 	}
-
 	Expression(char x) {
 		etype = 2;
 		v.c = x;
@@ -51,9 +54,6 @@ struct Expression {
 		switch (etype) {
 			case 0:
 				cout<<v.a;
-				break;
-			case 1:
-				cout<<v.b;
 				break;
 			case 2:
 				cout<<v.c;
@@ -83,31 +83,37 @@ union object {
 	object(const char *s) : ch(s) {}
 	object(vector<TreeNode*>* v) : vec(v) {}
 	object(TreeNode* n) : node(n) {}
+	friend object operator/ (const object& lhs, const object& rhs);
+	friend object operator- (const object& lhs, const object& rhs);
+	friend object operator* (const object& lhs, const object& rhs);
+	friend object operator+ (const object& lhs, const object& rhs);
 };
 
 enum StatementType {
 	START,   // start of program... instantiated only in the beginning and takes vector of
 	STMT_BLOCK, // collection of statement/asts, takes vector of statements as input and just holds them
     STMT_FUNC,  // takes vector of arguments and execute as input
+	STMT_SCOPE, // scope to define stuff inside {}
     STMT_FOR,   //	takes 2 nodes again...condition and execute
     STMT_WHILE,  //  takes 2 nodes again...condition and execute
     STMT_IF_ELSE,  //  takes condition and execute as input (2 tree nodes)..note that presently else has to be included always
 	STMT_ASSIGN,	// let statmement
+	STMT_PRINT,     // print
 	EXPR_COLL,		// collection of expression separated by comma
     STMT_EXPRESSION,  // simple expression including integers, stings, sum , ...basically string of operations
 };
 
 class TreeNode {
 public:
-	double comp=0;
 	int type=99;
     object obj; 
-	TreeNode* left;
-    TreeNode* right;
+	TreeNode* left = NULL;
+    TreeNode* right = NULL;
 	StatementType stmtType; 
 	TreeNode() : left(nullptr), right(nullptr) {}
     ~TreeNode() {}
 	virtual void print(){}
+	virtual express* code(){return NULL;}
 };
 
 
@@ -115,13 +121,17 @@ class assign : public TreeNode{
 public:
 	assign(){stmtType = STMT_ASSIGN;}
 	~assign(){stmtType = STMT_ASSIGN;}
-	assign(TreeNode* name, TreeNode* expression){left=name; right=expression; stmtType = STMT_ASSIGN;}
-	void print() override {cout<<right->comp<<endl;}
+	assign(string* name, TreeNode* expression, int i){
+		obj.b = name;
+		obj.exp.v.a =i;
+		stmtType = STMT_ASSIGN;
+		right=expression;
+	}
 };
 
 class express : public TreeNode{
 public:
-    express() {type = 6; stmtType = STMT_EXPRESSION;} 
+    express() {type = 0; stmtType = STMT_EXPRESSION;} 
     ~express() { delete obj.b; stmtType = STMT_EXPRESSION;}
     express(Expression e){
 		type = 0;
@@ -154,12 +164,11 @@ public:
 		right=ex;
 		stmtType = STMT_EXPRESSION;
 	}
-
     void print() override {
         if (type == 0) {
             obj.exp.get_value();
         } else if (type == 1) {
-            cout<< *obj.b;
+            cout<< *(obj.b);
         } else if(type==2){
 			cout << "[ ";
 			for (int i=0; i < obj.vec->size(); i++)
@@ -174,6 +183,7 @@ public:
 		{
 			obj.node->print();
 		}
+		cout<<endl;
     }
 };
 
@@ -181,7 +191,12 @@ class For : public TreeNode{
 public:
 	For(){stmtType = STMT_FOR;}
 	~For(){stmtType = STMT_FOR;}
-	For(TreeNode* condition, TreeNode* execute){left=condition; right=execute; stmtType = STMT_FOR;}
+	For(TreeNode* initialise,TreeNode* bool_cond,TreeNode* terminate, TreeNode* execute){
+		vector<TreeNode*>* temp;
+		temp->push_back(initialise); temp->push_back(bool_cond); temp->push_back(terminate); temp->push_back(execute); 
+		obj.vec = temp;
+		stmtType = STMT_FOR;
+		}
 };
 
 
@@ -189,7 +204,7 @@ class While : public TreeNode{
 public:
 	While(){stmtType = STMT_WHILE;}
 	~While(){stmtType = STMT_WHILE;}
-	While(TreeNode* condition, TreeNode* execute){left=condition; right=execute; stmtType = STMT_WHILE;}
+	While(TreeNode* condition, TreeNode* execute){left=condition; right=execute;stmtType = STMT_WHILE; }
 };
 
 class if_else : public TreeNode{
@@ -243,12 +258,25 @@ public:
 	void push (TreeNode* stmt) {obj.vec->push_back(stmt);}
 };
 
+class Scope : public TreeNode{
+public:
+	Scope(){stmtType = STMT_SCOPE;}
+	~Scope(){stmtType = STMT_SCOPE;}
+	Scope(block* stmts){obj.node=stmts; stmtType = STMT_SCOPE;}
+};
+
+class print_variable : public TreeNode{
+public:
+	print_variable(){stmtType = STMT_PRINT;}
+	~print_variable(){stmtType = STMT_PRINT;}
+	print_variable(string* a) {obj.b=a; stmtType = STMT_PRINT;}
+};
 
 class programm : public TreeNode{
 public:
 	programm(){stmtType = START;}
 	~programm(){stmtType = START;}
-	programm(block* stmts) { left = NULL; obj.node = stmts; stmtType = START; }
+	programm(block* stmts) { obj.node = stmts; stmtType = START; }
 };
 
 // OTHER DECLARATIONS
