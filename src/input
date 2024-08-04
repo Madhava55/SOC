@@ -1,5 +1,6 @@
-let counter = 0;
-let a = 2 + 10 / 5 ;
-a;
-a = ( 2 + 10 )/ 5;
-a;
+let a = 0 ;
+for(let i = 0 ; i < 10 ; i = i + 1 ;)
+{
+    a = a + 1;
+    a;
+}

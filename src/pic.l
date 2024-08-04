@@ -37,7 +37,7 @@ while 										{ yylval.name = new string(yytext); return WHILE; }
 ">"											{ return '>' ;}
 "=="										{ yylval.name = new string(yytext); return EQUAL;}
 "!="										{ yylval.name = new string(yytext); return NOT_EQUAL;}
-"!"											{ return '!' ;}
+"!"											{ return NOT ;}
 {digit}+									{ yylval.name = new string(yytext); return INT_CONST; }
 {fraction}									{ yylval.name = new string(yytext); return FLT_CONST; }
 {operator}									{ return yytext[0]; }

@@ -97,10 +97,17 @@ value operator!=(const Expression& lhs, const Expression& rhs) {
     }
     return comparison;
 }
+value operator!(const Expression& lhs) {
+    value comparison;
+        int type = lhs.etype;
+        if(type==0) comparison.boolean = !(lhs.v.a);
+        else if(type==1 || type ==3) comparison.boolean = !(lhs.v.boolean);
+        else if(type==2) comparison.boolean = true;
+    return comparison;
+}
 object operator/(const object& lhs, const object& rhs) {
-    // Handle division by zero or other edge cases as needed
     if (rhs.exp.v.a == 0.0) {
-        throw std::runtime_error("Division by zero");
+        throw runtime_error("Division by zero");
     }
     return object(*new Expression(lhs.exp.v.a / rhs.exp.v.a));
 }
@@ -126,7 +133,9 @@ object operator==(const object& lhs, const object& rhs) {
 object operator!=(const object& lhs, const object& rhs) {
     return object(*new Expression(lhs.exp != rhs.exp));
 }
-
+object operator!(const object& rhs) {
+    return object(*new Expression(!rhs.exp));
+}
 
 express::express(block* blk){
 	type = 4;
@@ -181,6 +190,11 @@ express* expr_evaluate(TreeNode* node)
     else if((node->obj.ch)=="!=")
     {
         node_ret->obj = (expr_evaluate(node->left)->obj)!=(expr_evaluate(node->right)->obj);
+        return node_ret;
+    }
+    else if((node->obj.ch)=="!")
+    {
+        node_ret->obj = (!(expr_evaluate(node->obj.node)->obj));
         return node_ret;
     }
     else if(node->left==NULL || node->right==NULL)

@@ -192,7 +192,7 @@ public:
 	For(){stmtType = STMT_FOR;}
 	~For(){stmtType = STMT_FOR;}
 	For(TreeNode* initialise,TreeNode* bool_cond,TreeNode* terminate, TreeNode* execute){
-		vector<TreeNode*>* temp;
+		vector<TreeNode*>* temp = new vector<TreeNode*>;
 		temp->push_back(initialise); temp->push_back(bool_cond); temp->push_back(terminate); temp->push_back(execute); 
 		obj.vec = temp;
 		stmtType = STMT_FOR;

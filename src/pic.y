@@ -22,13 +22,12 @@
 %right Uminus NOT										// Right associative unary minus operator
 %nonassoc '<' '>' EQUAL NOT_EQUAL
 
-
 %type <name> INT_CONST FLT_CONST NAME LET '(' ')' '{' '}' '[' ']' 		// Declare token types to be of type *string
 %type <exp> expression 								// Declare the expression non-terminal to be of type *TreeNode
 %type <tree> stmt 
 %type <scop> block
 %type <stmt_wrap> stmts
-%type <wrap_exp> expressions
+%type <vector_TreeNodes> expressions
 
 %start program 											// Starting rule for the grammar
 %%
@@ -69,8 +68,8 @@ block
 ;
 
 expressions
-    : expressions ',' expression                        { $1->push($3); $$ = $1; }
-    | expression                                        { vector<TreeNode*>* vec = new vector<TreeNode*>(); vec->push_back($1); $$ = new expr_coll(vec); }
+    : expressions ',' expression                        { $1->push_back($3); $$ = $1; }
+    | expression                                        { vector<TreeNode*>* vec = new vector<TreeNode*>(); vec->push_back($1); $$ = vec; }
 ;
 
 expression
@@ -84,7 +83,7 @@ expression
 	| expression '>' expression							{ auto ret = new express(">"); ret->left = $1; ret->right = $3; $$ = ret;  }
 	| expression EQUAL expression						{ auto ret = new express("=="); ret->left = $1; ret->right = $3; $$ = ret; }
 	| expression NOT_EQUAL expression					{ auto ret = new express("!="); ret->left = $1; ret->right = $3; $$ = ret; }
-	| NOT expression 									{  }
+	| NOT expression 									{ auto ret = new express("!"); ret->obj.node=$2; $$ = ret; }
 	| '-' expression %prec Uminus						{ $$ = new express(*new Expression(-1 *($2->obj.exp.v.a))); }
 	| INT_CONST											{ $$ = new express(*new Expression(atoi($1->c_str()))); }
 	| FLT_CONST											{ $$ = new express(*new Expression(atoi($1->c_str()))); }
