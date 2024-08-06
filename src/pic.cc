@@ -1,31 +1,7 @@
 #include "pic.hh"
 
 vector<unordered_map<string, express*>> table;
-
-/* void bfs(TreeNode* root) {
-    if (root == NULL) return;
-    queue<TreeNode*> q;
-    q.push(root);
-    while (!q.empty()) {
-        int levelSize = q.size(); 
-        vector<TreeNode*> levelNodes;
-
-        for (int i = 0; i < levelSize; i++) {
-            TreeNode* current = q.front();
-            q.pop();
-            levelNodes.push_back(current);
-            if (current->left != NULL) q.push(current->left);
-            if (current->right != NULL) q.push(current->right);
-        }
-        for (int i = 0; i < levelNodes.size(); i++) {
-            if (i != 0) cout << " ";
-            if(levelNodes[i]->stmtType==STMT_EXPRESSION) {
-                levelNodes[i]->print();
-            }
-        }
-        cout << endl;  
-    }
-} */
+stack<express*> returns;
 
 express* variable(string* a) {
     for(auto j:table.back())
@@ -51,6 +27,24 @@ express* print_var(string *s) {
 	}
 	cout<<"variable "<<*s<<" not found. Exiting..."<<endl;
 	exit(1);
+}
+
+express* array_retrieve(string* name, TreeNode* node)
+{
+    if(print_var(name)->obj.vec->size()==0){
+        cout<<"Variable "<<*name<<" is not indexible"<<endl;
+        exit(1);
+    }
+    else{
+        if(node->obj.exp.v.a>print_var(name)->obj.vec->size()){
+            cout<<"Variable "<<*name<<" is not indexible"<<endl;
+            exit(1);
+        }
+    }
+    vector<TreeNode*> temp = *new vector<TreeNode*>;
+    temp = *((print_var(name))->obj.vec);
+    if(node->obj.b!=NULL)return new express(temp[print_var(node->obj.b)->obj.exp.v.a]);
+    return new express(temp[(node->obj).exp.v.a]);
 }
 
 value operator<(const Expression& lhs, const Expression& rhs) {
@@ -197,6 +191,28 @@ express* expr_evaluate(TreeNode* node)
         node_ret->obj = (!(expr_evaluate(node->obj.node)->obj));
         return node_ret;
     }
+    else if(node->type==2)
+    {
+        return new express(node->obj.vec);
+    }
+    else if(node->stmtType==STMT_PRINT_ARRELEMENT)
+    {
+        return array_retrieve(node->obj.b, node->left);
+    }
+    else if(node->stmtType==FUNC_DEC)
+    {
+        cout<<"step1"<<endl;
+        return new express(node);
+    }
+    else if(node->stmtType==FUNC_CALL)
+    {
+        cout<<"step2"<<endl;
+        express* to_return =  node->code();
+        cout<<"step3"<<endl;
+        cout<<to_return->stmtType<<endl;
+        cout<<"step4"<<endl;
+        return to_return;
+    }
     else if(node->left==NULL || node->right==NULL)
     {
         express* node_ret = new express();
@@ -213,6 +229,10 @@ express* expr_evaluate(TreeNode* node)
         cout<<"wierd assignment resolution"<<endl;
         exit(1);
     }
+}
+
+void print_expression(express* node){
+    node->print();
 }
 
 void evaluate(TreeNode* node)
@@ -256,11 +276,14 @@ void evaluate(TreeNode* node)
     else if(check == STMT_BLOCK){
         for(int i=0;i<node->obj.vec->size();i++){
             vector<TreeNode*> temporary=*(node->obj.vec);
+            if(temporary[i]->stmtType==RETURN_STMT){returns.push(expr_evaluate(temporary[i]));break;}
             evaluate(temporary[i]);
         }
     }
     else if(check == STMT_PRINT){
-        print_var(node->obj.b)->print();
+        if(node->type==1)print_var(node->obj.b)->print();
+        else if (node->type==2){//node->obj.node->obj.node->print();
+        array_retrieve(node->obj.node->obj.b,node->obj.node->left)->print();}
     }
     else if(check == STMT_SCOPE){
         table.push_back(unordered_map<string, express*>());
@@ -290,3 +313,29 @@ void evaluate(TreeNode* node)
     }
 }
 
+express* function::code(vector<express*>* nodes){cout<<"gaybro"<<endl;
+    vector<TreeNode*> a = *obj.vec;
+    vector<express*> c = *nodes;
+    for(int i=0;i<obj.vec->size();i++)
+    {
+        table.back()[*(a[i]->obj.b)] = c[i];
+    }
+    evaluate(left);
+    express* returning = returns.top();returns.pop();
+    return returning;
+} 
+
+express* func_call::code(){cout<<"bruh"<<endl;
+std::vector<express*>* casted_vec = new std::vector<express*>;
+    for (TreeNode* node : *(obj.vec)) {
+        casted_vec->push_back(static_cast<express*>(node));
+    }
+    cout<<"bruh1"<<endl;
+    express* expr = print_var(temporary);
+    cout<<"bruh2"<<endl;
+    function* derived = static_cast<function*>(expr);
+    cout<<"bruh3"<<endl;
+    express* to_return = derived->code(casted_vec);
+    cout<<"bruh4"<<endl;
+    return to_return;
+}

@@ -13,6 +13,7 @@ class express;
 class TreeNode;
 
 extern vector<unordered_map<string, express*>> table;
+extern stack<express*> returns;
 
 class block;      
 class expr_coll; 
@@ -24,7 +25,7 @@ union value {
 };
 
 struct Expression {
-	int etype;
+	int etype=0;
 	value v;
 	Expression();
 	~Expression(){};
@@ -92,13 +93,16 @@ union object {
 enum StatementType {
 	START,   // start of program... instantiated only in the beginning and takes vector of
 	STMT_BLOCK, // collection of statement/asts, takes vector of statements as input and just holds them
-    STMT_FUNC,  // takes vector of arguments and execute as input
+    FUNC_CALL,  // takes vector of arguments and execute as input
+	FUNC_DEC,   // func declaration
 	STMT_SCOPE, // scope to define stuff inside {}
     STMT_FOR,   //	takes 2 nodes again...condition and execute
     STMT_WHILE,  //  takes 2 nodes again...condition and execute
     STMT_IF_ELSE,  //  takes condition and execute as input (2 tree nodes)..note that presently else has to be included always
 	STMT_ASSIGN,	// let statmement
 	STMT_PRINT,     // print
+	RETURN_STMT,   //used to return in functions
+	STMT_PRINT_ARRELEMENT, // to print an indexeed arr element
 	EXPR_COLL,		// collection of expression separated by comma
     STMT_EXPRESSION,  // simple expression including integers, stings, sum , ...basically string of operations
 };
@@ -114,6 +118,7 @@ public:
     ~TreeNode() {}
 	virtual void print(){}
 	virtual express* code(){return NULL;}
+	virtual express* code(vector<express*>* nodes){return NULL;}
 };
 
 
@@ -132,7 +137,7 @@ public:
 class express : public TreeNode{
 public:
     express() {type = 0; stmtType = STMT_EXPRESSION;} 
-    ~express() { delete obj.b; stmtType = STMT_EXPRESSION;}
+    virtual ~express() { delete obj.b; stmtType = STMT_EXPRESSION;}
     express(Expression e){
 		type = 0;
 		obj.exp = e;
@@ -155,7 +160,13 @@ public:
 		obj.vec=v;
 		stmtType = STMT_EXPRESSION;
 	} 
-
+	express(TreeNode* node){
+		type = node->type;
+		obj = node->obj;
+		left = node->left;
+		right = node->right;
+		stmtType = STMT_EXPRESSION;
+	}
 	express(block* blk);
 	express(expr_coll* expr);
 
@@ -170,10 +181,10 @@ public:
         } else if (type == 1) {
             cout<< *(obj.b);
         } else if(type==2){
-			cout << "[ ";
+			cout << "[";
 			for (int i=0; i < obj.vec->size(); i++)
 				{(*(obj.vec))[i]->obj.exp.get_value(); if(i<obj.vec->size()-1)cout<<",";}
-			cout <<"]"<<endl;
+			cout <<"]";
 		}
 		else if(type == 8)
 		{
@@ -185,6 +196,7 @@ public:
 		}
 		cout<<endl;
     }
+	virtual express* code(vector<TreeNode*>* nodes){cout<<"gay"<<endl;return NULL;}
 };
 
 class For : public TreeNode{
@@ -192,13 +204,22 @@ public:
 	For(){stmtType = STMT_FOR;}
 	~For(){stmtType = STMT_FOR;}
 	For(TreeNode* initialise,TreeNode* bool_cond,TreeNode* terminate, TreeNode* execute){
-		vector<TreeNode*>* temp = new vector<TreeNode*>;
-		temp->push_back(initialise); temp->push_back(bool_cond); temp->push_back(terminate); temp->push_back(execute); 
-		obj.vec = temp;
-		stmtType = STMT_FOR;
-		}
+	vector<TreeNode*>* temp = new vector<TreeNode*>;
+	temp->push_back(initialise); temp->push_back(bool_cond); temp->push_back(terminate); temp->push_back(execute); 
+	obj.vec = temp;
+	stmtType = STMT_FOR;
+	}
 };
 
+class return_func : public TreeNode{
+public:
+	return_func(){stmtType = RETURN_STMT;}
+	~return_func(){stmtType = RETURN_STMT;}
+	return_func(express* expression){
+	obj.node = expression;
+	stmtType = RETURN_STMT;
+	}
+};
 
 class While : public TreeNode{
 public:
@@ -213,24 +234,6 @@ public:
 	if_else(){stmtType = STMT_IF_ELSE;}
 	~if_else(){stmtType = STMT_IF_ELSE;}
 	if_else(express* condition, TreeNode* this_exp, TreeNode* that_exp){obj.node=condition; left=this_exp; right=that_exp; stmtType = STMT_IF_ELSE;}
-	void print() override{
-		cout<<"condition is ";
-		obj.node->print();
-		cout<<endl;
-		cout<<"if: ";
-		left->print();
-		cout<<endl;
-		cout<<"else: ";
-		right->print();
-		cout<<endl;
-	}
-};
-
-class functions : public TreeNode{
-public:
-	functions(){stmtType = STMT_FUNC;}
-	~functions(){stmtType = STMT_FUNC;}
-	functions(vector<TreeNode*>* args, TreeNode* execute){obj.vec=args; right=execute; stmtType = STMT_FUNC;}
 };
 
 
@@ -242,12 +245,6 @@ public:
 	void push (TreeNode* expr)
 		{obj.vec->push_back(expr);
 		stmtType = EXPR_COLL;}
-	void print() override{
-		cout << "[";
-			for (int i=0; i < obj.vec->size(); i++)
-				{(*(obj.vec))[i]->obj.exp.get_value(); if(i<obj.vec->size()-1)cout<<",";}
-			cout <<"]"<<endl;
-	}
 };
 
 class block : public TreeNode{
@@ -269,7 +266,39 @@ class print_variable : public TreeNode{
 public:
 	print_variable(){stmtType = STMT_PRINT;}
 	~print_variable(){stmtType = STMT_PRINT;}
-	print_variable(string* a) {obj.b=a; stmtType = STMT_PRINT;}
+	print_variable(string* a) {obj.b=a; type = 1; stmtType = STMT_PRINT;}
+	print_variable(express* nodee) {obj.node=nodee;type = 2; stmtType = STMT_PRINT;}
+};
+
+class print_arrelement: public express{
+public:
+	print_arrelement(){stmtType = STMT_PRINT_ARRELEMENT;}
+	~print_arrelement(){stmtType = STMT_PRINT_ARRELEMENT;}
+	print_arrelement(string* name, express* nodee) {
+		left=nodee;obj.b=name; stmtType = STMT_PRINT_ARRELEMENT;
+	}
+};
+
+class function: public express{
+public:
+	function(){stmtType=FUNC_DEC;}
+	~function(){stmtType=FUNC_DEC;}
+	function(vector<TreeNode*>* nodee,Scope* scop) {
+		obj.vec=nodee;left=scop;stmtType=FUNC_DEC;
+	}
+	express* code(vector<express*>* nodes)override;
+};
+
+class func_call : public express{
+public:
+	string* temporary ;
+	func_call(){stmtType=FUNC_CALL;}
+	~func_call(){stmtType=FUNC_CALL;}
+	func_call(string* name, vector<TreeNode*>* vect){
+		temporary=name;obj.vec=vect;
+		stmtType=FUNC_CALL;
+	}
+	express* code()override;
 };
 
 class programm : public TreeNode{

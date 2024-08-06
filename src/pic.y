@@ -3,6 +3,7 @@
     extern "C" void yyerror(const char *s);
     extern int yylex(void);
 	extern vector<unordered_map<string, express*>> table;
+	extern stack<express*> returns;
 %}
 
 %union{
@@ -15,7 +16,7 @@
 	vector<TreeNode*>* vector_TreeNodes;
 }
 
-%token INT_CONST FLT_CONST NAME LET FOR WHILE IF ELSE FUNC NOT EQUAL			// Token declarations (lexer uses these declarations to return tokens)
+%token INT_CONST FLT_CONST NAME LET FOR WHILE IF ELSE FUNC NOT EQUAL RETURN	FN	// Token declarations (lexer uses these declarations to return tokens)
 
 %left '+' '-' 											// Left associative operators '+' and '-'
 %left '*' '/' 											// Left associative operators '*' and '/'
@@ -55,12 +56,14 @@ stmts
  
 stmt
 	: block												{ $$ = $1; }
-	| LET NAME '=' expression ';'						{ $$ = new assign($2,$4,0); }
-	| NAME '=' expression ';'							{ $$ = new assign($1,$3,1); }
-	| NAME ';'     	 									{ $$ = new print_variable($1); }
+	| RETURN expression ';'								{ $$ = new return_func($2);}
 	| FOR '(' stmt  expression ';' stmt ')' block		{ $$ = new For($3,$4,$6,$8); }
 	| WHILE '(' expression ')' block					{ $$ = new While($3,$5); }
 	| IF '(' expression ')' block ELSE block	   		{ $$ = new if_else($3,$5,$7); }
+	| LET NAME '=' expression ';'						{ $$ = new assign($2,$4,0); }
+	| NAME '=' expression ';'							{ $$ = new assign($1,$3,1); }
+	| NAME ';'     	 									{ $$ = new print_variable($1); }
+	| expression ';'									{ $$ = new print_variable($1); }
 ; 
 	
 block
@@ -72,10 +75,13 @@ expressions
     | expression                                        { vector<TreeNode*>* vec = new vector<TreeNode*>(); vec->push_back($1); $$ = vec; }
 ;
 
-expression
+expression 
 	: '(' expression ')'				                { $$ = $2; }
-    | '[' expressions ']'                               { $$ = new express(($2)); }
-	| expression '/' expression							{ auto ret = new express("/"); ret->left = $1; ret->right = $3; $$ = ret;  }
+	| NAME '(' expressions ')'							{ $$ = new func_call($1,$3);}
+	| FN '(' expressions ')' block		 				{ $$ = new function($3,$5);}
+	| '[' expressions ']'                               { $$ = new express($2); }
+	| NAME '[' expression ']'							{ $$ = new print_arrelement($1,$3);}
+	| expression '/' expression			 				{ auto ret = new express("/"); ret->left = $1; ret->right = $3; $$ = ret;  }
 	| expression '*' expression							{ auto ret = new express("*"); ret->left = $1; ret->right = $3; $$ = ret;  }
 	| expression '+' expression							{ auto ret = new express("+"); ret->left = $1; ret->right = $3; $$ = ret;  }
 	| expression '-' expression					 		{ auto ret = new express("-"); ret->left = $1; ret->right = $3; $$ = ret;  }

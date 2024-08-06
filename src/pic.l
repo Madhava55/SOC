@@ -24,8 +24,9 @@ let 										{ yylval.name = new string(yytext); return LET; }
 for 										{ yylval.name = new string(yytext); return FOR; }
 if 											{ yylval.name = new string(yytext); return IF; }
 else 										{ yylval.name = new string(yytext); return ELSE; }
-func 										{ yylval.name = new string(yytext); return FUNC; }
+fn 											{ yylval.name = new string(yytext); return FN; }
 while 										{ yylval.name = new string(yytext); return WHILE; }
+return 										{ yylval.name = new string(yytext); return RETURN; }
 "("											{ return '(' ;}
 ")"											{ return ')' ;}
 "{"											{ return '{' ;}
