@@ -1,6 +1,6 @@
-let x = 0 ;
-{
-    let x = [2,3,4];
-    x[1];
-}
-x;
+let a = 3 ;
+let b = 5 ;
+let i = 5 ;
+let func = fn(x,y){return x+y;};
+let c = func(3,func(3,5));
+c;

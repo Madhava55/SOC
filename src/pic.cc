@@ -201,16 +201,12 @@ express* expr_evaluate(TreeNode* node)
     }
     else if(node->stmtType==FUNC_DEC)
     {
-        cout<<"step1"<<endl;
-        return new express(node);
+        express* returning = new express(node);
+        return returning;
     }
     else if(node->stmtType==FUNC_CALL)
     {
-        cout<<"step2"<<endl;
         express* to_return =  node->code();
-        cout<<"step3"<<endl;
-        cout<<to_return->stmtType<<endl;
-        cout<<"step4"<<endl;
         return to_return;
     }
     else if(node->left==NULL || node->right==NULL)
@@ -238,7 +234,7 @@ void print_expression(express* node){
 void evaluate(TreeNode* node)
 {
     auto check = node->stmtType;
-    if(check == STMT_ASSIGN){
+        if(check == STMT_ASSIGN){
         express* temp = expr_evaluate(node->right);
         int done=0;
         if(node->obj.exp.v.a==0) {
@@ -274,16 +270,16 @@ void evaluate(TreeNode* node)
         }
     }
     else if(check == STMT_BLOCK){
+        vector<TreeNode*> temporary=*(node->obj.vec);
         for(int i=0;i<node->obj.vec->size();i++){
-            vector<TreeNode*> temporary=*(node->obj.vec);
-            if(temporary[i]->stmtType==RETURN_STMT){returns.push(expr_evaluate(temporary[i]));break;}
+            if(temporary[i]->stmtType==RETURN_STMT){express* pushing =expr_evaluate(temporary[i]->obj.node);returns.push(pushing);break;}
             evaluate(temporary[i]);
         }
     }
     else if(check == STMT_PRINT){
         if(node->type==1)print_var(node->obj.b)->print();
-        else if (node->type==2){//node->obj.node->obj.node->print();
-        array_retrieve(node->obj.node->obj.b,node->obj.node->left)->print();}
+        else if (node->type==2){if(node->obj.node->type!=69)expr_evaluate(node->obj.node)->print();
+        else array_retrieve(node->obj.node->obj.b,node->obj.node->left)->print();}
     }
     else if(check == STMT_SCOPE){
         table.push_back(unordered_map<string, express*>());
@@ -313,29 +309,30 @@ void evaluate(TreeNode* node)
     }
 }
 
-express* function::code(vector<express*>* nodes){cout<<"gaybro"<<endl;
+express* function::code(vector<express*>* nodes) {
     vector<TreeNode*> a = *obj.vec;
     vector<express*> c = *nodes;
+    vector<TreeNode*> to_join = *new vector<TreeNode*>;
     for(int i=0;i<obj.vec->size();i++)
     {
-        table.back()[*(a[i]->obj.b)] = c[i];
+        to_join.push_back(new assign((a[i]->obj.b),expr_evaluate(c[i]),0));
     }
-    evaluate(left);
-    express* returning = returns.top();returns.pop();
+    to_join.push_back(left);
+    block* mid = new block(&to_join);
+    Scope* to_eval = new Scope(mid);
+    evaluate(to_eval);
+    express* returning = returns.top();
+    returns.pop();
     return returning;
 } 
 
-express* func_call::code(){cout<<"bruh"<<endl;
-std::vector<express*>* casted_vec = new std::vector<express*>;
+express* func_call::code(){
+    vector<express*>* casted_vec = new std::vector<express*>;
     for (TreeNode* node : *(obj.vec)) {
         casted_vec->push_back(static_cast<express*>(node));
     }
-    cout<<"bruh1"<<endl;
     express* expr = print_var(temporary);
-    cout<<"bruh2"<<endl;
-    function* derived = static_cast<function*>(expr);
-    cout<<"bruh3"<<endl;
+    function* derived = new function(expr);
     express* to_return = derived->code(casted_vec);
-    cout<<"bruh4"<<endl;
     return to_return;
 }

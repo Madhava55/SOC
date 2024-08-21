@@ -196,7 +196,6 @@ public:
 		}
 		cout<<endl;
     }
-	virtual express* code(vector<TreeNode*>* nodes){cout<<"gay"<<endl;return NULL;}
 };
 
 class For : public TreeNode{
@@ -214,7 +213,7 @@ public:
 class return_func : public TreeNode{
 public:
 	return_func(){stmtType = RETURN_STMT;}
-	~return_func(){stmtType = RETURN_STMT;}
+	~return_func(){stmtType = RETURN_STMT;} 
 	return_func(express* expression){
 	obj.node = expression;
 	stmtType = RETURN_STMT;
@@ -256,7 +255,7 @@ public:
 };
 
 class Scope : public TreeNode{
-public:
+public: 
 	Scope(){stmtType = STMT_SCOPE;}
 	~Scope(){stmtType = STMT_SCOPE;}
 	Scope(block* stmts){obj.node=stmts; stmtType = STMT_SCOPE;}
@@ -275,7 +274,7 @@ public:
 	print_arrelement(){stmtType = STMT_PRINT_ARRELEMENT;}
 	~print_arrelement(){stmtType = STMT_PRINT_ARRELEMENT;}
 	print_arrelement(string* name, express* nodee) {
-		left=nodee;obj.b=name; stmtType = STMT_PRINT_ARRELEMENT;
+		type = 69; left=nodee;obj.b=name; stmtType = STMT_PRINT_ARRELEMENT;
 	}
 };
 
@@ -283,10 +282,15 @@ class function: public express{
 public:
 	function(){stmtType=FUNC_DEC;}
 	~function(){stmtType=FUNC_DEC;}
+	function(express* expr){
+		obj.vec=expr->obj.vec;
+		left= expr->left;
+		stmtType=FUNC_DEC;
+	}
+	express* code(vector<express*>* nodes) override;
 	function(vector<TreeNode*>* nodee,Scope* scop) {
 		obj.vec=nodee;left=scop;stmtType=FUNC_DEC;
 	}
-	express* code(vector<express*>* nodes)override;
 };
 
 class func_call : public express{
@@ -298,7 +302,7 @@ public:
 		temporary=name;obj.vec=vect;
 		stmtType=FUNC_CALL;
 	}
-	express* code()override;
+	express* code() override;
 };
 
 class programm : public TreeNode{
