@@ -1,2 +1,3 @@
-# SOC
-This is the collection of assignments given to mentees in the project Python Interpreter in Cpp. 
+# Interpreter in Cpp 
+
+This repo has the code for an interpreter of Monkey language in C++.
